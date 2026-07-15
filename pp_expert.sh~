@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source /cds/group/pcds/pyps/conda/dev_conda
+
+typhos --layout grid --cols 1 --display-type embedded --scrollable auto --size 600,600 \
+"pcdsdevices.twincat_motor.TwinCATAxis[{'prefix':'SH1L2:PP:MMS:01:', 'name':'PP Spindle'}]" \
+"pcdsdevices.twincat_motor.TwinCATAxis[{'prefix':'SH1L2:PP:MMS:02:', 'name':'PP x-axis'}]" \
+"pcdsdevices.twincat_motor.TwinCATAxis[{'prefix':'SH1L2:PP:MMS:03:', 'name':'PP y-axis'}]" &

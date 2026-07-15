@@ -1,0 +1,942 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>411</width>
+    <height>537</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>411</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Pulse Picker</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing">
+    <number>8</number>
+   </property>
+   <property name="leftMargin">
+    <number>8</number>
+   </property>
+   <property name="topMargin">
+    <number>8</number>
+   </property>
+   <property name="rightMargin">
+    <number>8</number>
+   </property>
+   <property name="bottomMargin">
+    <number>8</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="TitleLabel">
+     <property name="styleSheet">
+      <string notr="true">QLabel {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                stop:0 #2C3E50, stop:1 #34495E);
+    color: white;
+    border-radius: 8px;
+    font-size: 22pt;
+    font-weight: bold;
+    padding: 10px;
+}</string>
+     </property>
+     <property name="text">
+      <string>Pulse Picker</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="StatusFrame">
+     <property name="styleSheet">
+      <string notr="true">QFrame#StatusFrame { border: 1px solid #A0A0A0; border-radius: 5px; }</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="statusOuter">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="CurrentStatusHeader">
+        <property name="styleSheet">
+         <string notr="true">background-color: #7F8C8D; color: white; font-weight: bold; padding: 3px; border-radius: 3px;</string>
+        </property>
+        <property name="text">
+         <string>Current Status</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="statusBody">
+        <property name="spacing">
+         <number>10</number>
+        </property>
+        <item>
+         <widget class="PulsePicker" name="PulsePicker">
+          <property name="minimumSize">
+           <size>
+            <width>130</width>
+            <height>130</height>
+           </size>
+          </property>
+          <property name="channelsPrefix" stdset="0">
+           <string>ca://${prefix}</string>
+          </property>
+          <property name="positionSuffix" stdset="0">
+           <string/>
+          </property>
+          <property name="stateSuffix" stdset="0">
+           <string>:MMS:03:eInOutStatus_RBV</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="readbackLayout">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="rowBlade">
+            <item>
+             <widget class="QLabel" name="BladeCaption">
+              <property name="minimumSize">
+               <size>
+                <width>128</width>
+                <height>34</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Blade Position</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PyDMLabel" name="BladeReadback">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>34</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(249, 249, 249);
+color: rgb(12, 12, 12);</string>
+              </property>
+              <property name="text">
+               <string>--</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="rules" stdset="0">
+               <string>[{&quot;name&quot;: &quot;InOutString&quot;, &quot;property&quot;: &quot;Text&quot;, &quot;initial_value&quot;: &quot;--&quot;, &quot;expression&quot;: &quot;'Unknown' if (ch[0]==0) else 'In' if (ch[0]==1) else 'Out' if (ch[0]==2) else 'Unknown'&quot;, &quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:03:eInOutStatus_RBV&quot;, &quot;trigger&quot;: true, &quot;use_enum&quot;: true}], &quot;notes&quot;: &quot;&quot;}]</string>
+              </property>
+              <property name="precision" stdset="0">
+               <number>0</number>
+              </property>
+              <property name="showUnits" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="precisionFromPV" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="alarmSensitiveContent" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="alarmSensitiveBorder" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="channel" stdset="0">
+               <string>ca://${prefix}:MMS:03:eInOutStatus_RBV</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="rowFreq">
+            <item>
+             <widget class="QLabel" name="FrequencyCaption">
+              <property name="minimumSize">
+               <size>
+                <width>128</width>
+                <height>34</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Frequency (Hz)</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PyDMLineEdit" name="FrequencyRB">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>34</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(249, 249, 249);
+color: rgb(0, 0, 0);</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+              <property name="precision" stdset="0">
+               <number>0</number>
+              </property>
+              <property name="showUnits" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="precisionFromPV" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="alarmSensitiveContent" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="alarmSensitiveBorder" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="channel" stdset="0">
+               <string>ca://${prefix}:MMS:01:fCurrentTriggerFrequency_RBV</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="rowMode">
+            <item>
+             <widget class="QLabel" name="ModeCaption">
+              <property name="minimumSize">
+               <size>
+                <width>128</width>
+                <height>34</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Current Mode</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PyDMLabel" name="ModeReadback">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>34</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: rgb(8, 8, 8);
+background-color: rgb(255, 255, 255);</string>
+              </property>
+              <property name="text">
+               <string>--</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="rules" stdset="0">
+               <string>[{&quot;name&quot;: &quot;ModeString&quot;, &quot;property&quot;: &quot;Text&quot;, &quot;initial_value&quot;: &quot;--&quot;, &quot;expression&quot;: &quot;'No Mode' if (ch[0]==0) else 'Flip Flop' if (ch[0]==1) else 'Burst' if (ch[0]==2) else 'Open' if (ch[0]==3) else 'Close' if (ch[0]==4) else 'Home' if (ch[0]==5) else 'Unknown'&quot;, &quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:01:eModeSelector_RBV&quot;, &quot;trigger&quot;: true, &quot;use_enum&quot;: false}], &quot;notes&quot;: &quot;&quot;}]</string>
+              </property>
+              <property name="precision" stdset="0">
+               <number>0</number>
+              </property>
+              <property name="showUnits" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="precisionFromPV" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="alarmSensitiveContent" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="alarmSensitiveBorder" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="channel" stdset="0">
+               <string>ca://${prefix}:MMS:01:eModeSelector_RBV</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="rowCentered">
+            <item>
+             <widget class="QLabel" name="CenteredCaption">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>28</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Centered</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PyDMByteIndicator" name="CenteredIndicator">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">border-color: rgb(234, 234, 234);</string>
+              </property>
+              <property name="alarmSensitiveContent" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="alarmSensitiveBorder" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="channel" stdset="0">
+               <string>ca://${prefix}:MMS:01:bCentered_RBV</string>
+              </property>
+              <property name="showLabels" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="bigEndian" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="circles" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="numBits" stdset="0">
+               <number>1</number>
+              </property>
+              <property name="shift" stdset="0">
+               <number>0</number>
+              </property>
+              <property name="labels" stdset="0">
+               <stringlist>
+                <string>Centered</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="centeredSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="errorRow">
+        <item>
+         <widget class="QLabel" name="ErrorCaption">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Error Status</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="PyDMLineEdit" name="ErrorStatusRB">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(249, 249, 249);
+color: rgb(0, 0, 0);</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="precision" stdset="0">
+           <number>0</number>
+          </property>
+          <property name="showUnits" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="alarmSensitiveContent" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="alarmSensitiveBorder" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="channel" stdset="0">
+           <string>ca://${prefix}:MMS:01:sErrorMessage_RBV</string>
+          </property>
+          <property name="displayFormat" stdset="0">
+           <enum>PyDMLineEdit::String</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="ModeFrame">
+     <property name="styleSheet">
+      <string notr="true">QFrame#ModeFrame { border: 1px solid #A0A0A0; border-radius: 5px; }</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="modeOuter">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="ModeSelectionHeader">
+        <property name="styleSheet">
+         <string notr="true">background-color: #7F8C8D; color: white; font-weight: bold; padding: 3px; border-radius: 3px;</string>
+        </property>
+        <property name="text">
+         <string>Mode Selection</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="modeGrid">
+        <property name="horizontalSpacing">
+         <number>8</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>8</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="PyDMPushButton" name="OpenButton">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    color: rgb(18, 18, 18);
+    background-color: #1E8449;
+    font-size: 11pt;
+}
+QPushButton:hover {
+    background-color: #145A32;
+}
+QPushButton:pressed {
+    background-color: #82E0AA;
+}</string>
+          </property>
+          <property name="text">
+           <string>OPEN</string>
+          </property>
+          <property name="alarmSensitiveContent" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="alarmSensitiveBorder" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="channel" stdset="0">
+           <string>ca://${prefix}:MMS:01:eModeSelector</string>
+          </property>
+          <property name="showConfirmDialog" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="confirmMessage" stdset="0">
+           <string>Move the pulse picker to OPEN?</string>
+          </property>
+          <property name="pressValue" stdset="0">
+           <string>3</string>
+          </property>
+          <property name="releaseValue" stdset="0">
+           <string>None</string>
+          </property>
+          <property name="relativeChange" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="writeWhenRelease" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="PyDMPushButton" name="CloseButton">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    color: rgb(18, 18, 18);
+    background-color: #E74C3C;
+    font-size: 11pt;
+}
+QPushButton:hover {
+    background-color: #AA3227;
+}
+QPushButton:pressed {
+    background-color: #E38A82;
+}</string>
+          </property>
+          <property name="text">
+           <string>CLOSE</string>
+          </property>
+          <property name="alarmSensitiveContent" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="alarmSensitiveBorder" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="channel" stdset="0">
+           <string>ca://${prefix}:MMS:01:eModeSelector</string>
+          </property>
+          <property name="showConfirmDialog" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="confirmMessage" stdset="0">
+           <string>Move the pulse picker to CLOSE?</string>
+          </property>
+          <property name="pressValue" stdset="0">
+           <string>4</string>
+          </property>
+          <property name="releaseValue" stdset="0">
+           <string>None</string>
+          </property>
+          <property name="relativeChange" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="writeWhenRelease" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="PyDMPushButton" name="FlipFlop">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    color: rgb(18, 18, 18);
+    background-color: rgb(54, 64, 153);
+    font-size: 11pt;
+}
+QPushButton:hover {
+    background-color: #2980B9;
+}
+QPushButton:pressed {
+    background-color: #21618C;
+}</string>
+          </property>
+          <property name="text">
+           <string>FLIP FLOP</string>
+          </property>
+          <property name="alarmSensitiveContent" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="alarmSensitiveBorder" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="channel" stdset="0">
+           <string>ca://${prefix}:MMS:01:eModeSelector</string>
+          </property>
+          <property name="showConfirmDialog" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="confirmMessage" stdset="0">
+           <string>Are you sure you want to proceed?</string>
+          </property>
+          <property name="pressValue" stdset="0">
+           <string>1</string>
+          </property>
+          <property name="releaseValue" stdset="0">
+           <string>None</string>
+          </property>
+          <property name="relativeChange" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="writeWhenRelease" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="PyDMPushButton" name="BurstModeButton">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    color: rgb(18, 18, 18);
+    background-color: rgb(54, 64, 153);
+    font-size: 11pt;
+}
+QPushButton:hover {
+    background-color: #8E44AD;
+}
+QPushButton:pressed {
+    background-color: #7D3C98;
+}</string>
+          </property>
+          <property name="text">
+           <string>BURST</string>
+          </property>
+          <property name="alarmSensitiveContent" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="alarmSensitiveBorder" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="channel" stdset="0">
+           <string>ca://${prefix}:MMS:01:eModeSelector</string>
+          </property>
+          <property name="showConfirmDialog" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="confirmMessage" stdset="0">
+           <string>Are you sure you want to proceed?</string>
+          </property>
+          <property name="pressValue" stdset="0">
+           <string>2</string>
+          </property>
+          <property name="releaseValue" stdset="0">
+           <string>None</string>
+          </property>
+          <property name="relativeChange" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="writeWhenRelease" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="PyDMPushButton" name="HomeButton">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    color: rgb(18, 18, 18);
+    background-color: rgb(54, 64, 153);
+    font-size: 11pt;
+}
+QPushButton:hover {
+    background-color: #2980B9;
+}
+QPushButton:pressed {
+    background-color: #21618C;
+}</string>
+          </property>
+          <property name="text">
+           <string>HOME</string>
+          </property>
+          <property name="alarmSensitiveContent" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="alarmSensitiveBorder" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="channel" stdset="0">
+           <string>ca://${prefix}:MMS:01:eModeSelector</string>
+          </property>
+          <property name="showConfirmDialog" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="confirmMessage" stdset="0">
+           <string>Home the pulse picker?</string>
+          </property>
+          <property name="pressValue" stdset="0">
+           <string>5</string>
+          </property>
+          <property name="releaseValue" stdset="0">
+           <string>None</string>
+          </property>
+          <property name="relativeChange" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="writeWhenRelease" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="PyDMPushButton" name="StopButton">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    color: rgb(18, 18, 18);
+    background-color: rgb(54, 64, 153);
+    font-size: 11pt;
+}
+QPushButton:hover {
+    background-color: #21618C;
+}
+QPushButton:pressed {
+    background-color: #21618C;
+}</string>
+          </property>
+          <property name="text">
+           <string>STOP</string>
+          </property>
+          <property name="alarmSensitiveContent" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="alarmSensitiveBorder" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="channel" stdset="0">
+           <string>ca://${prefix}:MMS:01:eModeSelector</string>
+          </property>
+          <property name="showConfirmDialog" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="confirmMessage" stdset="0">
+           <string>Are you sure you want to proceed?</string>
+          </property>
+          <property name="pressValue" stdset="0">
+           <string>0</string>
+          </property>
+          <property name="releaseValue" stdset="0">
+           <string>None</string>
+          </property>
+          <property name="relativeChange" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="writeWhenRelease" stdset="0">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="footerRow">
+     <item>
+      <spacer name="footerSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="PyDMRelatedDisplayButton" name="ExpertButton">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>⚙</string>
+       </property>
+       <property name="alarmSensitiveContent" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="alarmSensitiveBorder" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="PyDMToolTip" stdset="0">
+        <string>Open expert screen</string>
+       </property>
+       <property name="channel" stdset="0">
+        <string/>
+       </property>
+       <property name="filenames" stdset="0">
+        <stringlist>
+         <string>/cds/group/pcds/epics-dev/screens/pydm/xpp/dev/pp_config3.ui</string>
+        </stringlist>
+       </property>
+       <property name="titles" stdset="0">
+        <stringlist/>
+       </property>
+       <property name="showIcon" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="macros" stdset="0">
+        <stringlist>
+         <string>{&quot;prefix&quot;: &quot;${prefix}&quot;}</string>
+        </stringlist>
+       </property>
+       <property name="openInNewWindow" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="followSymlinks" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PyDMLabel</class>
+   <extends>QLabel</extends>
+   <header>pydm.widgets.label</header>
+  </customwidget>
+  <customwidget>
+   <class>PyDMByteIndicator</class>
+   <extends>QWidget</extends>
+   <header>pydm.widgets.byte</header>
+  </customwidget>
+  <customwidget>
+   <class>PyDMLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>pydm.widgets.line_edit</header>
+  </customwidget>
+  <customwidget>
+   <class>PyDMPushButton</class>
+   <extends>QPushButton</extends>
+   <header>pydm.widgets.pushbutton</header>
+  </customwidget>
+  <customwidget>
+   <class>PyDMRelatedDisplayButton</class>
+   <extends>QPushButton</extends>
+   <header>pydm.widgets.related_display_button</header>
+  </customwidget>
+  <customwidget>
+   <class>PulsePicker</class>
+   <extends>QWidget</extends>
+   <header>pcdswidgets.beam.pulse_picker</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
