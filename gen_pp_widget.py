@@ -11,8 +11,28 @@ Restrained palette. Readback fields are greyed out to distinguish them from
 writable fields. Run: python gen_pp_widget.py
 """
 
+import json
+
 P = "ca://${prefix}"
 CONFIG = "pp_config3.ui"
+
+def _xml(s):
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+
+def mode_hl_rule(value):
+    """Rule: the selected mode button (mode readback == its press value) stays at
+    full opacity while the others dim -- highlighting the active mode."""
+    rule = [{"name": "ModeHL", "property": "Opacity", "initial_value": 1.0,
+             "expression": "1.0 if ch[0]==" + str(value) + " else 0.45",
+             "channels": [{"channel": "ca://${prefix}:MMS:01:eModeSelector_RBV", "trigger": True}],
+             "notes": ""}]
+    return _xml(json.dumps(rule))
+
+# Wheel-centre pill: show OPENED / CLOSED from the blade in/out status.
+STATE_RULE = ("[{&quot;name&quot;: &quot;State&quot;, &quot;property&quot;: &quot;Text&quot;, &quot;initial_value&quot;: &quot;--&quot;, "
+              "&quot;expression&quot;: &quot;'OPENED' if (ch[0]==2) else 'CLOSED' if (ch[0]==1) else '--'&quot;, "
+              "&quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:03:eInOutStatus_RBV&quot;, "
+              "&quot;trigger&quot;: true, &quot;use_enum&quot;: false}], &quot;notes&quot;: &quot;&quot;}]")
 
 GRAD = ("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2C3E50, stop:1 #34495E);"
         " color: white; border-radius: 8px; font-size: 20pt; font-weight: bold; padding: 8px;")
@@ -51,9 +71,14 @@ def hbox(*widgets, spacing=8):
     inner = "".join(item(w) for w in widgets)
     return f'<layout class="QHBoxLayout" name="{uid("hb")}"><property name="spacing"><number>{spacing}</number></property>{inner}</layout>'
 
-def label(text, style, align="Qt::AlignCenter", minh=0, minw=0):
+def vspacer():
+    return ('<spacer name="'+uid("vs")+'"><property name="orientation"><enum>Qt::Vertical</enum></property>'
+            '<property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property></spacer>')
+
+def label(text, style, align="Qt::AlignCenter", minh=0, minw=0, maxh=0):
     ms = f'<property name="minimumSize"><size><width>{minw}</width><height>{minh}</height></size></property>' if (minh or minw) else ''
-    return (f'<widget class="QLabel" name="{uid("lbl")}"><property name="styleSheet"><string notr="true">{style}</string></property>{ms}'
+    mx = f'<property name="maximumSize"><size><width>16777215</width><height>{maxh}</height></size></property>' if maxh else ''
+    return (f'<widget class="QLabel" name="{uid("lbl")}"><property name="styleSheet"><string notr="true">{style}</string></property>{ms}{mx}'
             f'<property name="text"><string>{text}</string></property><property name="alignment"><set>{align}</set></property></widget>')
 
 def header(text):
@@ -79,15 +104,16 @@ def readrow(cap, field):
     return (f'<layout class="QHBoxLayout" name="{uid("rr")}"><property name="spacing"><number>6</number></property>'
             f'{item(label(cap, CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, 78))}{item(field)}</layout>')
 
-def mode_btn(text, value, color, confirm, expand=True):
+def mode_btn(text, value, color, confirm, expand=True, highlight=True):
     cd = ('<property name="showConfirmDialog" stdset="0"><bool>true</bool></property>'
           f'<property name="confirmMessage" stdset="0"><string>Set mode to {text}?</string></property>') if confirm else \
          '<property name="showConfirmDialog" stdset="0"><bool>false</bool></property>'
     sp = ('<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>') if expand else ''
     ss = f'QPushButton {{ color: white; background-color: {color}; font-size: 10pt; font-weight: bold; border-radius: 5px; padding: 3px 10px; }}'
+    rules = f'<property name="rules" stdset="0"><string>{mode_hl_rule(value)}</string></property>' if highlight else ''
     return (f'<widget class="PyDMPushButton" name="{uid("mb")}"><property name="minimumSize"><size><width>0</width><height>30</height></size></property>'
             f'<property name="maximumSize"><size><width>16777215</width><height>32</height></size></property>{sp}'
-            f'<property name="styleSheet"><string notr="true">{ss}</string></property><property name="text"><string>{text}</string></property>'
+            f'<property name="styleSheet"><string notr="true">{ss}</string></property><property name="text"><string>{text}</string></property>{rules}'
             f'<property name="channel" stdset="0"><string>{P}:MMS:01:eModeSelector</string></property>'
             f'<property name="pressValue" stdset="0"><string>{value}</string></property>{cd}'
             f'<property name="releaseValue" stdset="0"><string>None</string></property></widget>')
@@ -102,18 +128,16 @@ def static_wheel():
             '<property name="styleSheet"><string notr="true">background: #00c853; border-radius: 4px;</string></property><property name="text"><string/></property></widget>')
     bar2 = ('<widget class="QLabel" name="StaticBar2"><property name="geometry"><rect><x>40</x><y>101</y><width>120</width><height>18</height></rect></property>'
             '<property name="styleSheet"><string notr="true">background: #00c853; border-radius: 4px;</string></property><property name="text"><string/></property></widget>')
-    # Current picker position readback, centered in the wheel slit (spindle motor RBV).
-    pos = ('<widget class="PyDMLabel" name="PickerPos"><property name="geometry"><rect><x>50</x><y>83</y><width>100</width><height>30</height></rect></property>'
-           '<property name="styleSheet"><string notr="true">background: rgba(38,50,56,0.88); color: white; border-radius: 6px; font-weight: bold; font-size: 11pt;</string></property>'
-           '<property name="alignment"><set>Qt::AlignCenter</set></property><property name="text"><string>--</string></property>'
-           '<property name="precision" stdset="0"><number>2</number></property>'
-           '<property name="showUnits" stdset="0"><bool>true</bool></property>'
-           '<property name="precisionFromPV" stdset="0"><bool>true</bool></property>'
-           '<property name="channel" stdset="0"><string>ca://${prefix}:MMS:01.RBV</string></property></widget>')
+    # Centre pill: OPENED / CLOSED from the blade in/out status.
+    state = ('<widget class="PyDMLabel" name="PickerState"><property name="geometry"><rect><x>42</x><y>82</y><width>116</width><height>32</height></rect></property>'
+             '<property name="styleSheet"><string notr="true">background: rgba(38,50,56,0.9); color: white; border-radius: 6px; font-weight: bold; font-size: 12pt;</string></property>'
+             '<property name="alignment"><set>Qt::AlignCenter</set></property><property name="text"><string>--</string></property>'
+             f'<property name="rules" stdset="0"><string>{STATE_RULE}</string></property>'
+             '<property name="channel" stdset="0"><string>ca://${prefix}:MMS:03:eInOutStatus_RBV</string></property></widget>')
     return (f'<widget class="QFrame" name="StaticWheel">'
             f'<property name="sizePolicy"><sizepolicy hsizetype="Fixed" vsizetype="Fixed"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>'
             f'<property name="minimumSize"><size><width>200</width><height>196</height></size></property>'
-            f'<property name="maximumSize"><size><width>200</width><height>196</height></size></property>{ring}{bar1}{bar2}{pos}</widget>')
+            f'<property name="maximumSize"><size><width>200</width><height>196</height></size></property>{ring}{bar1}{bar2}{state}</widget>')
 
 def pulse_picker():
     return ('<widget class="PulsePicker" name="PulsePicker"><property name="minimumSize"><size><width>150</width><height>145</height></size></property>'
@@ -160,20 +184,17 @@ def build(wheel, custom, layout="modern"):
               f'<item><spacer name="fsp"><property name="orientation"><enum>Qt::Horizontal</enum></property>'
               f'<property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property></spacer></item>'
               f'{item(expert_button())}</layout>')
-    title = label("Pulse Picker", GRAD)
+    title = label("Pulse Picker", GRAD, maxh=62)
 
     o = mode_btn("OPEN", "3", GREEN, True); c = mode_btn("CLOSE", "4", RED, True)
     ff = mode_btn("FLIP FLOP", "1", BLUE, False); bu = mode_btn("BURST", "2", BLUE, False)
 
     if layout == "stacked":
-        # OPEN/CLOSE on top, wheel, FLIP FLOP/BURST below; HOME/STOP in Control.
-        ho = mode_btn("HOME", "5", BLUE, True); st = mode_btn("STOP", "0", STOP_COLOR, False)
-        status = framed("StatusFrame", "Current Status", item(rb_vbox) + item(err))
+        # Just the mode block: OPEN/CLOSE on top, wheel (shows OPENED/CLOSED), FLIP
+        # FLOP/BURST below. Status + HOME/STOP live on the config screen now.
         inner = item(hbox(o, c)) + item(hbox(hspacer(), wheel, hspacer())) + item(hbox(ff, bu))
         mode = framed("ModeFrame", "Mode", inner)
-        control = framed("ControlFrame", "Control", item(hbox(ho, st)))
-        # Status block placed below the Mode/Control blocks.
-        body_items = item(title) + item(mode) + item(control) + item(status) + item(footer)
+        body_items = item(title) + item(mode) + item(vspacer()) + item(footer)
     elif layout == "surround":
         # OPEN/CLOSE on top, HOME | wheel | STOP, FLIP FLOP/BURST below.
         # HOME/STOP fit their text so the wheel keeps the central space.

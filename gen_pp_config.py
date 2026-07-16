@@ -20,6 +20,13 @@ WR_FIELD = "background-color: #ffffff; color: #0c0c0c; border: 1px solid #546e7a
 BLUE = ("QPushButton { color: white; background-color: rgb(54,64,153); font-weight: bold; border-radius: 4px; }"
         " QPushButton:hover { background-color: #21618C; }")
 CAP = "color: #333; font-weight: bold;"
+STOP_BTN = "QPushButton { color: white; background-color: rgb(170,0,0); font-weight: bold; border-radius: 4px; } QPushButton:hover { background-color: #7a0000; }"
+INOUT_RULE = ("[{&quot;name&quot;: &quot;InOut&quot;, &quot;property&quot;: &quot;Text&quot;, &quot;initial_value&quot;: &quot;--&quot;, "
+  "&quot;expression&quot;: &quot;'Unknown' if (ch[0]==0) else 'In' if (ch[0]==1) else 'Out' if (ch[0]==2) else 'Unknown'&quot;, "
+  "&quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:03:eInOutStatus_RBV&quot;, &quot;trigger&quot;: true, &quot;use_enum&quot;: true}], &quot;notes&quot;: &quot;&quot;}]")
+MODE_RULE = ("[{&quot;name&quot;: &quot;Mode&quot;, &quot;property&quot;: &quot;Text&quot;, &quot;initial_value&quot;: &quot;--&quot;, "
+  "&quot;expression&quot;: &quot;'No Mode' if (ch[0]==0) else 'Flip Flop' if (ch[0]==1) else 'Burst' if (ch[0]==2) else 'Open' if (ch[0]==3) else 'Close' if (ch[0]==4) else 'Home' if (ch[0]==5) else 'Unknown'&quot;, "
+  "&quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:01:eModeSelector_RBV&quot;, &quot;trigger&quot;: true, &quot;use_enum&quot;: false}], &quot;notes&quot;: &quot;&quot;}]")
 
 # motor -> (title, mms, [ (caption, kind, rbv_suffix, set_suffix) ], [ (btn_text, pv_suffix, value) ])
 # kind: ro | set | byte | bypass.  Suffixes are appended AFTER ":<mms>".
@@ -82,19 +89,25 @@ def label(text, style, align="Qt::AlignCenter", minh=0, minw=0):
             f'<property name="text"><string>{esc(text)}</string></property>'
             f'<property name="alignment"><set>{align}</set></property></widget>')
 
-def pydm_label(address, minh=30):
-    return (f'<widget class="PyDMLabel" name="{uid("rb")}">'
-            f'<property name="minimumSize"><size><width>0</width><height>{minh}</height></size></property>'
-            f'<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>'
+def _fieldsize(minh, fix_w):
+    # fix_w>0 -> fixed width (readback & write end up identical); else expanding.
+    if fix_w:
+        return (f'<property name="minimumSize"><size><width>{fix_w}</width><height>{minh}</height></size></property>'
+                f'<property name="maximumSize"><size><width>{fix_w}</width><height>16777215</height></size></property>'
+                f'<property name="sizePolicy"><sizepolicy hsizetype="Fixed" vsizetype="Fixed"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>')
+    return (f'<property name="minimumSize"><size><width>0</width><height>{minh}</height></size></property>'
+            f'<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>')
+
+def pydm_label(address, minh=30, fix_w=0, rules=""):
+    rp = f'<property name="rules" stdset="0"><string>{rules}</string></property>' if rules else ''
+    return (f'<widget class="PyDMLabel" name="{uid("rb")}">{_fieldsize(minh, fix_w)}'
             f'<property name="styleSheet"><string notr="true">{RB_FIELD}</string></property>'
             f'<property name="alignment"><set>Qt::AlignCenter</set></property>'
-            f'<property name="text"><string>--</string></property>'
+            f'<property name="text"><string>--</string></property>{rp}'
             f'<property name="channel" stdset="0"><string>{address}</string></property></widget>')
 
-def pydm_lineedit(address, minh=30):
-    return (f'<widget class="PyDMLineEdit" name="{uid("set")}">'
-            f'<property name="minimumSize"><size><width>0</width><height>{minh}</height></size></property>'
-            f'<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>'
+def pydm_lineedit(address, minh=30, fix_w=0):
+    return (f'<widget class="PyDMLineEdit" name="{uid("set")}">{_fieldsize(minh, fix_w)}'
             f'<property name="styleSheet"><string notr="true">{WR_FIELD}</string></property>'
             f'<property name="alignment"><set>Qt::AlignCenter</set></property>'
             f'<property name="channel" stdset="0"><string>{address}</string></property></widget>')
@@ -107,19 +120,17 @@ def pydm_byte(address):
             f'<property name="circles" stdset="0"><bool>true</bool></property>'
             f'<property name="numBits" stdset="0"><number>1</number></property></widget>')
 
-def pydm_combo(address):
-    return (f'<widget class="PyDMEnumComboBox" name="{uid("cmb")}">'
-            f'<property name="minimumSize"><size><width>0</width><height>30</height></size></property>'
-            f'<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>'
+def pydm_combo(address, fix_w=0):
+    return (f'<widget class="PyDMEnumComboBox" name="{uid("cmb")}">{_fieldsize(30, fix_w)}'
             f'<property name="styleSheet"><string notr="true">{WR_FIELD}</string></property>'
             f'<property name="channel" stdset="0"><string>{address}</string></property></widget>')
 
-def pydm_button(text, address, value, minh=30, expanding=False):
+def pydm_button(text, address, value, minh=30, expanding=False, style=None):
     sp = ('<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed">'
           '<horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>') if expanding else ''
     return (f'<widget class="PyDMPushButton" name="{uid("btn")}">'
             f'<property name="minimumSize"><size><width>0</width><height>{minh}</height></size></property>{sp}'
-            f'<property name="styleSheet"><string notr="true">{BLUE}</string></property>'
+            f'<property name="styleSheet"><string notr="true">{style or BLUE}</string></property>'
             f'<property name="text"><string>{esc(text)}</string></property>'
             f'<property name="channel" stdset="0"><string>{address}</string></property>'
             f'<property name="pressValue" stdset="0"><string>{value}</string></property>'
@@ -154,22 +165,22 @@ def vspacer():
     return ('<spacer name="' + uid("vs") + '"><property name="orientation"><enum>Qt::Vertical</enum></property>'
             '<property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property></spacer>')
 
-def param_grid(mms, params):
+def param_grid(mms, params, cap_w=130, field_fix_w=0):
     cells = []
     for i, (cap, kind, rbv, setp) in enumerate(params):
-        cells.append(grid_item(label(cap, CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, 130), i, 0))
+        cells.append(grid_item(label(cap, CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, cap_w), i, 0))
         if kind == "byte":
             cells.append(grid_item(pydm_byte(chan(mms, rbv)), i, 1))
         else:
-            cells.append(grid_item(pydm_label(chan(mms, rbv)), i, 1))
+            cells.append(grid_item(pydm_label(chan(mms, rbv), fix_w=field_fix_w), i, 1))
         if kind == "set":
-            cells.append(grid_item(pydm_lineedit(chan(mms, setp)), i, 2))
+            cells.append(grid_item(pydm_lineedit(chan(mms, setp), fix_w=field_fix_w), i, 2))
         elif kind == "bypass":
-            cells.append(grid_item(pydm_combo(chan(mms, setp)), i, 2))
+            cells.append(grid_item(pydm_combo(chan(mms, setp), fix_w=field_fix_w), i, 2))
     # Center controls live in the same grid: caption | Center button | Center LED.
     r = len(params)
-    cells.append(grid_item(label("Center", CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, 130), r, 0))
-    cells.append(grid_item(pydm_button("Center", chan(mms, CENTER_CMD), "1"), r, 1))
+    cells.append(grid_item(label("Home", CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, cap_w), r, 0))
+    cells.append(grid_item(pydm_button("Home", chan(mms, CENTER_CMD), "1"), r, 1))
     cells.append(grid_item(pydm_byte(chan(mms, CENTER_LED)), r, 2))
     return (f'<layout class="QGridLayout" name="{uid("grid")}">'
             f'<property name="horizontalSpacing"><number>6</number></property>'
@@ -199,10 +210,11 @@ def tab_content(key):
             f'<property name="bottomMargin"><number>10</number></property>'
             f'{"".join(parts)}</layout>')
 
-def framed(inner_layout, name):
+def framed(inner_layout, name, max_w=0):
+    mw = f'<property name="maximumSize"><size><width>{max_w}</width><height>16777215</height></size></property>' if max_w else ''
     return (f'<widget class="QFrame" name="{name}">'
             f'<property name="styleSheet"><string notr="true">QFrame#{name} {{ border: 1px solid #A0A0A0; border-radius: 6px; }}</string></property>'
-            f'<property name="frameShape"><enum>QFrame::StyledPanel</enum></property>'
+            f'<property name="frameShape"><enum>QFrame::StyledPanel</enum></property>{mw}'
             f'{inner_layout}</widget>')
 
 CUSTOM = """
@@ -214,6 +226,7 @@ CUSTOM = """
   <customwidget><class>PyDMPushButton</class><extends>QPushButton</extends><header>pydm.widgets.pushbutton</header></customwidget>
   <customwidget><class>PyDMRelatedDisplayButton</class><extends>QPushButton</extends><header>pydm.widgets.related_display_button</header></customwidget>
   <customwidget><class>MotorClassicRow</class><extends>QWidget</extends><header>pcdswidgets.motion.common.motor_classic_row</header></customwidget>
+  <customwidget><class>MotorClassicVert</class><extends>QWidget</extends><header>pcdswidgets.motion.common.motor_classic_vert</header></customwidget>
  </customwidgets>
 """
 
@@ -300,10 +313,78 @@ def model_C():
     panels = "".join(item(framed(tab_content(k), uid("panel"))) for k in ORDER)
     return document(panels, 560, 900)
 
+ABBREV = {
+    "Frequency": "Freq", "Center Offset": "C Off", "+ Close": "+Close", "- Close": "-Close",
+    "+ Viol Lim": "+VLim", "- Viol Lim": "-VLim", "+ Viol Cnt": "+VCnt", "- Viol Cnt": "-VCnt",
+    "Travel Min": "T Min", "Travel Max": "T Max", "Travel Mid": "T Mid",
+    "Center Min": "C Min", "Center Max": "C Max", "In/Out Thresh": "Thresh", "EPS Bypass": "Byp",
+}
+
+def motor_classic_vert(mms):
+    # Expand horizontally only (fill the column width); keep the natural height.
+    return (f'<widget class="MotorClassicVert" name="{uid("motorv")}">'
+            f'<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>'
+            f'<property name="minimumSize"><size><width>148</width><height>145</height></size></property>'
+            f'<property name="motor" stdset="0"><string>${{prefix}}:{mms}</string></property></widget>')
+
+def compact_column(key):
+    """A narrow per-axis column: header, compact params (abbreviated captions,
+    readback/write fields the same width), actions, and the vertical motor widget
+    expanded to fill the column."""
+    title, mms, params, actions = CATALOG[key]
+    params = [(ABBREV.get(cap, cap), kind, rbv, setp) for (cap, kind, rbv, setp) in params]
+    parts = [item(header_bar(f"{title}", mms)), item(param_grid(mms, params, cap_w=58, field_fix_w=62))]
+    if actions:
+        act = "".join(item(pydm_button(t, chan(mms, pv), v)) for t, pv, v in actions)
+        parts.append(item(f'<layout class="QHBoxLayout" name="{uid("acts")}"><property name="spacing"><number>4</number></property>{act}</layout>'))
+    # Expanding spacer above the motor widget pushes it to the bottom of the
+    # (equal-height) column, so all three motor sections line up at the same top.
+    parts.append(item(vspacer()))
+    parts.append(item(motor_classic_vert(mms)))
+    return (f'<layout class="QVBoxLayout" name="{uid("cv")}"><property name="spacing"><number>6</number></property>'
+            f'<property name="leftMargin"><number>6</number></property><property name="topMargin"><number>6</number></property>'
+            f'<property name="rightMargin"><number>6</number></property><property name="bottomMargin"><number>6</number></property>'
+            f'{"".join(parts)}</layout>')
+
+def header_bar(title, mms):
+    return label(f"{title} ({mms})", SLATE)
+
+def picker_bar():
+    """Global picker status (Blade / Frequency / Mode / Error) + Home/Stop, moved
+    here from the main widget."""
+    def cap(t): return label(t, CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, 0)
+    blade = pydm_label(chan("MMS:03", ":eInOutStatus_RBV"), fix_w=64, rules=INOUT_RULE)
+    freq = pydm_label(chan("MMS:01", ":fCurrentTriggerFrequency_RBV"), fix_w=84)
+    mode = pydm_label(chan("MMS:01", ":eModeSelector_RBV"), fix_w=90, rules=MODE_RULE)
+    error = pydm_label(chan("MMS:01", ":sErrorMessage_RBV"))
+    # Home lives on each axis's centering button (home == center); keep only Stop here.
+    stop = pydm_button("Stop", chan("MMS:01", ":eModeSelector"), "0", style=STOP_BTN)
+    row = (f'<layout class="QHBoxLayout" name="{uid("statrow")}"><property name="spacing"><number>6</number></property>'
+           f'{item(cap("Blade"))}{item(blade)}{item(cap("Freq"))}{item(freq)}{item(cap("Mode"))}{item(mode)}'
+           f'{item(hspacer())}{item(stop)}</layout>')
+    erow = (f'<layout class="QHBoxLayout" name="{uid("errrow")}"><property name="spacing"><number>6</number></property>'
+            f'{item(cap("Error"))}{item(error)}</layout>')
+    inner = (f'<layout class="QVBoxLayout" name="{uid("pbv")}"><property name="spacing"><number>6</number></property>'
+             f'<property name="leftMargin"><number>8</number></property><property name="topMargin"><number>6</number></property>'
+             f'<property name="rightMargin"><number>8</number></property><property name="bottomMargin"><number>8</number></property>'
+             f'{item(label("Pulse Picker Status", SLATE))}{item(row)}{item(erow)}</layout>')
+    return item(framed(inner, uid("pbar")))
+
+def model_D():
+    # Space-optimized: three narrow columns, each with the vertical motor widget.
+    cols = "".join(item(framed(compact_column(k), uid("vcol"), max_w=210)) for k in ORDER)
+    body = item(f'<layout class="QHBoxLayout" name="vcolsRow"><property name="spacing"><number>6</number></property>{cols}</layout>')
+    return document(picker_bar() + body, 664, 600)
+
+def hspacer():
+    return ('<spacer name="'+uid("chs")+'"><property name="orientation"><enum>Qt::Horizontal</enum></property>'
+            '<property name="sizeHint" stdset="0"><size><width>6</width><height>6</height></size></property></spacer>')
+
 
 if __name__ == "__main__":
     out = {"pp_config3_A.ui": model_A, "pp_config3_B.ui": model_B,
-           "pp_config3_B2.ui": model_B_embedded, "pp_config3_C.ui": model_C}
+           "pp_config3_B2.ui": model_B_embedded, "pp_config3_C.ui": model_C,
+           "pp_config3_D.ui": model_D}
     for fname, fn in out.items():
         _n[0] = 0
         with open(fname, "w") as fd:
