@@ -23,7 +23,9 @@ def mode_hl_rule(value):
     """Rule: the selected mode button (mode readback == its press value) stays at
     full opacity while the others dim -- highlighting the active mode."""
     rule = [{"name": "ModeHL", "property": "Opacity", "initial_value": "1.0",
-             "expression": "1.0 if ch[0]==" + str(value) + " else 0.45",
+             # full opacity when this button's mode is active OR no mode is set
+             # (ch[0]==0); only dim to de-emphasize when a *different* mode is active
+             "expression": "1.0 if ch[0] in (0, " + str(value) + ") else 0.45",
              "channels": [{"channel": "ca://${prefix}:MMS:01:eModeSelector_RBV", "trigger": True}],
              "notes": ""}]
     return _xml(json.dumps(rule))
