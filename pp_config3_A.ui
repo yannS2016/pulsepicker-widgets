@@ -14,6 +14,7 @@
   <customwidget><class>PyDMEnumComboBox</class><extends>QComboBox</extends><header>pydm.widgets.enum_combo_box</header></customwidget>
   <customwidget><class>PyDMPushButton</class><extends>QPushButton</extends><header>pydm.widgets.pushbutton</header></customwidget>
   <customwidget><class>PyDMRelatedDisplayButton</class><extends>QPushButton</extends><header>pydm.widgets.related_display_button</header></customwidget>
+  <customwidget><class>PyDMShellCommand</class><extends>QPushButton</extends><header>pydm.widgets.shell_command</header></customwidget>
   <customwidget><class>MotorClassicRow</class><extends>QWidget</extends><header>pcdswidgets.motion.common.motor_classic_row</header></customwidget>
   <customwidget><class>MotorClassicVert</class><extends>QWidget</extends><header>pcdswidgets.motion.common.motor_classic_vert</header></customwidget>
  </customwidgets>

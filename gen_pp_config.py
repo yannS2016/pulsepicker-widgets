@@ -7,6 +7,8 @@ Each axis tab: its own settings + a Center button/LED + a button to open the
 motor widget (MotorClassicFull) via pp_motor.ui.  Run:  python gen_pp_config.py
 """
 
+import json
+
 P = "ca://${prefix}"                     # channel prefix; ${prefix} expanded by pydm
 
 GRAD = ("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
@@ -27,6 +29,32 @@ INOUT_RULE = ("[{&quot;name&quot;: &quot;InOut&quot;, &quot;property&quot;: &quo
 MODE_RULE = ("[{&quot;name&quot;: &quot;Mode&quot;, &quot;property&quot;: &quot;Text&quot;, &quot;initial_value&quot;: &quot;--&quot;, "
   "&quot;expression&quot;: &quot;'No Mode' if (ch[0]==0) else 'Flip Flop' if (ch[0]==1) else 'Burst' if (ch[0]==2) else 'Open' if (ch[0]==3) else 'Close' if (ch[0]==4) else 'Home' if (ch[0]==5) else 'Unknown'&quot;, "
   "&quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:01:eModeSelector_RBV&quot;, &quot;trigger&quot;: true, &quot;use_enum&quot;: false}], &quot;notes&quot;: &quot;&quot;}]")
+
+def rule_xml(rule):
+    """JSON-encode a rules list and XML-escape it for a .ui <string> property."""
+    return (json.dumps(rule).replace("&", "&amp;").replace("<", "&lt;")
+            .replace(">", "&gt;").replace('"', "&quot;"))
+
+# Consolidated status error: for each stage whose bError_RBV flag is set, decode
+# its :sErrorMessage_RBV char waveform, tag it with the stage, and combine multiple
+# with "; " -- else "No errors". Channels are paired per stage: [bError, message]
+# x3, so ch[2*i] is the flag and ch[2*i+1] the message for stage i.
+ALLERR_RULE = rule_xml([{
+    "name": "AllErrors", "property": "Text", "initial_value": "--",
+    "expression": ("'; '.join((bytes(int(c) for c in np.atleast_1d(ch[2*i+1]) if c)"
+                   ".decode('latin-1', 'ignore').strip() or 'error') + ' [' + n + ']' "
+                   "for i, n in enumerate(['Spindle', 'X', 'Y']) "
+                   "if ch[2*i] and ch[2*i+1] is not None) or 'No errors'"),
+    "channels": [
+        {"channel": "ca://${prefix}:MMS:01:bError_RBV",        "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:01:sErrorMessage_RBV", "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:02:bError_RBV",        "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:02:sErrorMessage_RBV", "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:03:bError_RBV",        "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:03:sErrorMessage_RBV", "trigger": True, "use_enum": False},
+    ],
+    "notes": "",
+}])
 
 # motor -> (title, mms, [ (caption, kind, rbv_suffix, set_suffix) ], [ (btn_text, pv_suffix, value) ])
 # kind: ro | set | byte | bypass.  Suffixes are appended AFTER ":<mms>".
@@ -141,6 +169,20 @@ def pydm_button(text, address, value, minh=30, expanding=False, style=None):
             f'<property name="showConfirmDialog" stdset="0"><bool>true</bool></property>'
             f'<property name="confirmMessage" stdset="0"><string>Proceed with {esc(text)}?</string></property></widget>')
 
+def reset_all_button(style=None):
+    """One button that resets every stage: caputs 1 to each MMS:0x:bReset.
+    PyDMPushButton writes a single channel, so a shell command fans out to all
+    three stage reset PVs. (Assumes each stage exposes :bReset like the spindle.)"""
+    cmds = "".join(f'<string>caput ${{prefix}}:MMS:{m:02d}:bReset 1</string>' for m in (1, 2, 3))
+    return (f'<widget class="PyDMShellCommand" name="{uid("reset")}">'
+            f'<property name="minimumSize"><size><width>0</width><height>30</height></size></property>'
+            f'<property name="styleSheet"><string notr="true">{style or BLUE}</string></property>'
+            f'<property name="text"><string>Reset</string></property>'
+            f'<property name="showIcon" stdset="0"><bool>false</bool></property>'
+            f'<property name="commands" stdset="0"><stringlist>{cmds}</stringlist></property>'
+            f'<property name="showConfirmDialog" stdset="0"><bool>true</bool></property>'
+            f'<property name="confirmMessage" stdset="0"><string>Reset all three stages (MMS:01/02/03)?</string></property></widget>')
+
 def motor_related_button(text, mms):
     # All motor buttons open the same pp_motor.ui (three MotorClassicRow); pass the
     # prefix macro so ${prefix} resolves in the popup.
@@ -229,6 +271,7 @@ CUSTOM = """
   <customwidget><class>PyDMEnumComboBox</class><extends>QComboBox</extends><header>pydm.widgets.enum_combo_box</header></customwidget>
   <customwidget><class>PyDMPushButton</class><extends>QPushButton</extends><header>pydm.widgets.pushbutton</header></customwidget>
   <customwidget><class>PyDMRelatedDisplayButton</class><extends>QPushButton</extends><header>pydm.widgets.related_display_button</header></customwidget>
+  <customwidget><class>PyDMShellCommand</class><extends>QPushButton</extends><header>pydm.widgets.shell_command</header></customwidget>
   <customwidget><class>MotorClassicRow</class><extends>QWidget</extends><header>pcdswidgets.motion.common.motor_classic_row</header></customwidget>
   <customwidget><class>MotorClassicVert</class><extends>QWidget</extends><header>pcdswidgets.motion.common.motor_classic_vert</header></customwidget>
  </customwidgets>
@@ -354,18 +397,19 @@ def header_bar(title, mms):
     return label(f"{title} ({mms})", SLATE)
 
 def picker_bar():
-    """Global picker status (Blade / Frequency / Mode / Error) + Home/Stop, moved
-    here from the main widget."""
+    """Global picker status (Blade / Frequency / Mode / consolidated Error across
+    all stages) + a Reset that propagates to every stage's reset PV."""
     def cap(t): return label(t, CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, 0)
     blade = pydm_label(chan("MMS:03", ":eInOutStatus_RBV"), fix_w=64, rules=INOUT_RULE)
     freq = pydm_label(chan("MMS:01", ":fCurrentTriggerFrequency_RBV"), fix_w=84)
     mode = pydm_label(chan("MMS:01", ":eModeSelector_RBV"), fix_w=90, rules=MODE_RULE)
-    error = pydm_label(chan("MMS:01", ":sErrorMessage_RBV"), disp_fmt="String")
-    # Home lives on each axis's centering button (home == center); keep only Stop here.
-    stop = pydm_button("Stop", chan("MMS:01", ":eModeSelector"), "0", style=STOP_BTN)
+    error = pydm_label("", rules=ALLERR_RULE)  # consolidated across all three stages
+    # Home lives on each axis's centering button; a single Reset propagates to
+    # every stage's reset PV (replaces the old Stop button).
+    reset = reset_all_button()
     row = (f'<layout class="QHBoxLayout" name="{uid("statrow")}"><property name="spacing"><number>6</number></property>'
            f'{item(cap("Blade"))}{item(blade)}{item(cap("Freq"))}{item(freq)}{item(cap("Mode"))}{item(mode)}'
-           f'{item(hspacer())}{item(stop)}</layout>')
+           f'{item(hspacer())}{item(reset)}</layout>')
     erow = (f'<layout class="QHBoxLayout" name="{uid("errrow")}"><property name="spacing"><number>6</number></property>'
             f'{item(cap("Error"))}{item(error)}</layout>')
     inner = (f'<layout class="QVBoxLayout" name="{uid("pbv")}"><property name="spacing"><number>6</number></property>'
