@@ -170,17 +170,22 @@ def pydm_button(text, address, value, minh=30, expanding=False, style=None):
             f'<property name="confirmMessage" stdset="0"><string>Proceed with {esc(text)}?</string></property></widget>')
 
 def reset_all_button(style=None):
-    """One button that resets every stage: caputs 1 to each MMS:0x:bReset.
-    PyDMPushButton writes a single channel, so a shell command fans out to all
-    three stage reset PVs. (Assumes each stage exposes :bReset like the spindle.)"""
-    cmds = "".join(f'<string>caput ${{prefix}}:MMS:{m:02d}:bReset 1</string>' for m in (1, 2, 3))
+    """Reset button with a dropdown: pick a single stage (Spindle / X / Y) or All.
+    Each entry caputs 1 to that stage's MMS:0x:bReset; All chains the three. The
+    'titles' give the menu friendly labels instead of the raw caput commands."""
+    per = [f'caput ${{prefix}}:MMS:{m:02d}:bReset 1' for m in (1, 2, 3)]
+    cmds = per + ['; '.join(per)]
+    titles = ["Spindle", "X", "Y", "All"]
+    cmd_xml = "".join(f'<string>{c}</string>' for c in cmds)
+    ttl_xml = "".join(f'<string>{t}</string>' for t in titles)
     return (f'<widget class="PyDMShellCommand" name="{uid("reset")}">'
             f'<property name="minimumSize"><size><width>0</width><height>30</height></size></property>'
             f'<property name="styleSheet"><string notr="true">{style or BLUE}</string></property>'
             f'<property name="text"><string>Reset</string></property>'
             f'<property name="showIcon" stdset="0"><bool>false</bool></property>'
             f'<property name="runCommandsInFullShell" stdset="0"><bool>true</bool></property>'
-            f'<property name="commands" stdset="0"><stringlist>{cmds}</stringlist></property></widget>')
+            f'<property name="commands" stdset="0"><stringlist>{cmd_xml}</stringlist></property>'
+            f'<property name="titles" stdset="0"><stringlist>{ttl_xml}</stringlist></property></widget>')
 
 def motor_related_button(text, mms):
     # All motor buttons open the same pp_motor.ui (three MotorClassicRow); pass the
