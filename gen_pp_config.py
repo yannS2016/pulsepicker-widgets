@@ -451,7 +451,10 @@ def hspacer():
 if __name__ == "__main__":
     out = {"pp_config3_A.ui": model_A, "pp_config3_B.ui": model_B,
            "pp_config3_B2.ui": model_B_embedded, "pp_config3_C.ui": model_C,
-           "pp_config3_D.ui": model_D}
+           "pp_config3_D.ui": model_D,
+           # pp_config.ui is the deployed copy of model D (what the pp_widget
+           # Expert button opens); emit it here so it never drifts out of sync.
+           "pp_config.ui": model_D}
     for fname, fn in out.items():
         _n[0] = 0
         with open(fname, "w") as fd:
