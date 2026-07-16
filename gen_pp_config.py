@@ -98,12 +98,16 @@ def _fieldsize(minh, fix_w):
     return (f'<property name="minimumSize"><size><width>0</width><height>{minh}</height></size></property>'
             f'<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>')
 
-def pydm_label(address, minh=30, fix_w=0, rules=""):
+def pydm_label(address, minh=30, fix_w=0, rules="", disp_fmt=None):
     rp = f'<property name="rules" stdset="0"><string>{rules}</string></property>' if rules else ''
+    # displayFormat="String" decodes a char/byte waveform (e.g. an error message
+    # PV) into text instead of showing the raw byte array.
+    df = (f'<property name="displayFormat" stdset="0"><enum>PyDMLabel::{disp_fmt}</enum></property>'
+          if disp_fmt else '')
     return (f'<widget class="PyDMLabel" name="{uid("rb")}">{_fieldsize(minh, fix_w)}'
             f'<property name="styleSheet"><string notr="true">{RB_FIELD}</string></property>'
             f'<property name="alignment"><set>Qt::AlignCenter</set></property>'
-            f'<property name="text"><string>--</string></property>{rp}'
+            f'<property name="text"><string>--</string></property>{rp}{df}'
             f'<property name="channel" stdset="0"><string>{address}</string></property></widget>')
 
 def pydm_lineedit(address, minh=30, fix_w=0):
@@ -356,7 +360,7 @@ def picker_bar():
     blade = pydm_label(chan("MMS:03", ":eInOutStatus_RBV"), fix_w=64, rules=INOUT_RULE)
     freq = pydm_label(chan("MMS:01", ":fCurrentTriggerFrequency_RBV"), fix_w=84)
     mode = pydm_label(chan("MMS:01", ":eModeSelector_RBV"), fix_w=90, rules=MODE_RULE)
-    error = pydm_label(chan("MMS:01", ":sErrorMessage_RBV"))
+    error = pydm_label(chan("MMS:01", ":sErrorMessage_RBV"), disp_fmt="String")
     # Home lives on each axis's centering button (home == center); keep only Stop here.
     stop = pydm_button("Stop", chan("MMS:01", ":eModeSelector"), "0", style=STOP_BTN)
     row = (f'<layout class="QHBoxLayout" name="{uid("statrow")}"><property name="spacing"><number>6</number></property>'
