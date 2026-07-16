@@ -26,7 +26,8 @@ def mode_hl_rule(value):
              # full opacity when this button's mode is active OR no mode is set
              # (ch[0]==0); only dim to de-emphasize when a *different* mode is active
              "expression": "1.0 if ch[0] in (0, " + str(value) + ") else 0.45",
-             "channels": [{"channel": "ca://${prefix}:MMS:01:eModeSelector_RBV", "trigger": True}],
+             # use_enum False -> ch[0] is the numeric mode (0..5), not the enum string
+             "channels": [{"channel": "ca://${prefix}:MMS:01:eModeSelector_RBV", "trigger": True, "use_enum": False}],
              "notes": ""}]
     return _xml(json.dumps(rule))
 
@@ -45,6 +46,8 @@ WR_FIELD = "background-color: #ffffff; color: #0c0c0c; border: 1px solid #546e7a
 CAP = "color: #333; font-weight: bold;"
 GREEN = "#1E8449"; RED = "#E74C3C"; BLUE = "rgb(54,64,153)"; SLATEC = "#7F8C8D"
 STOP_COLOR = "rgb(170, 0, 0)"  # matches the Stop button in MotorClassicFull
+# lighter shade shown on mouse-over for each button color
+HOVER = {GREEN: "#27AE60", RED: "#EC7063", BLUE: "rgb(74, 86, 190)", STOP_COLOR: "rgb(200, 0, 0)"}
 
 INOUT = ("[{&quot;name&quot;: &quot;InOutString&quot;, &quot;property&quot;: &quot;Text&quot;, "
          "&quot;initial_value&quot;: &quot;--&quot;, &quot;expression&quot;: &quot;'Unknown' if (ch[0]==0) "
@@ -58,15 +61,19 @@ MODE = ("[{&quot;name&quot;: &quot;ModeString&quot;, &quot;property&quot;: &quot
         "&quot;ca://${prefix}:MMS:01:eModeSelector_RBV&quot;, &quot;trigger&quot;: true, &quot;use_enum&quot;: "
         "false}], &quot;notes&quot;: &quot;&quot;}]")
 
-# ModeFrame backdrop: red brush while ANY stage's bError_RBV is set, else transparent.
+# ModeFrame backdrop: red brush while ANY stage has an error, EXCEPT while the
+# device is picking (Flip Flop=1 / Burst=2), where the EPS interlock error is
+# expected -- the config screen still shows the message, but the widget stays
+# neutral. ch[0..2] = per-stage bError, ch[3] = mode. Deep red (#9B1111) is
+# distinct from the CLOSE button's #E74C3C so CLOSE stays legible.
 ERROR_BG_RULE = _xml(json.dumps([{
     "name": "ErrorBg", "property": "Set Brush Color", "initial_value": "",
-    # deep red, distinct from the CLOSE button's #E74C3C so CLOSE stays legible
-    "expression": "QBrush(QColor(155, 17, 17)) if any(ch) else QBrush(QColor(0, 0, 0, 0))",
+    "expression": "QBrush(QColor(155, 17, 17)) if any(ch[:3]) and ch[3] not in (1, 2) else QBrush(QColor(0, 0, 0, 0))",
     "channels": [
         {"channel": "ca://${prefix}:MMS:01:bError_RBV", "trigger": True, "use_enum": False},
         {"channel": "ca://${prefix}:MMS:02:bError_RBV", "trigger": True, "use_enum": False},
         {"channel": "ca://${prefix}:MMS:03:bError_RBV", "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:01:eModeSelector_RBV", "trigger": True, "use_enum": False},
     ],
     "notes": "",
 }]))
@@ -124,7 +131,9 @@ def mode_btn(text, value, color, confirm, expand=True, highlight=True):
           f'<property name="confirmMessage" stdset="0"><string>Set mode to {text}?</string></property>') if confirm else \
          '<property name="showConfirmDialog" stdset="0"><bool>false</bool></property>'
     sp = ('<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>') if expand else ''
-    ss = f'QPushButton {{ color: white; background-color: {color}; font-size: 10pt; font-weight: bold; border-radius: 5px; padding: 3px 10px; }}'
+    hv = HOVER.get(color, color)
+    ss = (f'QPushButton {{ color: white; background-color: {color}; font-size: 10pt; font-weight: bold; border-radius: 5px; padding: 3px 10px; }}'
+          f' QPushButton:hover {{ background-color: {hv}; }}')
     rules = f'<property name="rules" stdset="0"><string>{mode_hl_rule(value)}</string></property>' if highlight else ''
     return (f'<widget class="PyDMPushButton" name="{uid("mb")}"><property name="minimumSize"><size><width>0</width><height>30</height></size></property>'
             f'<property name="maximumSize"><size><width>16777215</width><height>32</height></size></property>{sp}'

@@ -126,13 +126,19 @@ def _fieldsize(minh, fix_w):
     return (f'<property name="minimumSize"><size><width>0</width><height>{minh}</height></size></property>'
             f'<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>')
 
-def pydm_label(address, minh=30, fix_w=0, rules="", disp_fmt=None):
+def pydm_label(address, minh=30, fix_w=0, rules="", disp_fmt=None, hignore=False):
     rp = f'<property name="rules" stdset="0"><string>{rules}</string></property>' if rules else ''
     # displayFormat="String" decodes a char/byte waveform (e.g. an error message
     # PV) into text instead of showing the raw byte array.
     df = (f'<property name="displayFormat" stdset="0"><enum>PyDMLabel::{disp_fmt}</enum></property>'
           if disp_fmt else '')
-    return (f'<widget class="PyDMLabel" name="{uid("rb")}">{_fieldsize(minh, fix_w)}'
+    size = _fieldsize(minh, fix_w)
+    if hignore:
+        # Ignored horizontal policy: fills available width but never lets a long
+        # string grow the layout, so the error text can't resize the window.
+        size = (f'<property name="minimumSize"><size><width>0</width><height>{minh}</height></size></property>'
+                f'<property name="sizePolicy"><sizepolicy hsizetype="Ignored" vsizetype="Fixed"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property>')
+    return (f'<widget class="PyDMLabel" name="{uid("rb")}">{size}'
             f'<property name="styleSheet"><string notr="true">{RB_FIELD}</string></property>'
             f'<property name="alignment"><set>Qt::AlignCenter</set></property>'
             f'<property name="text"><string>--</string></property>{rp}{df}'
@@ -412,7 +418,7 @@ def picker_bar():
     blade = pydm_label(chan("MMS:03", ":eInOutStatus_RBV"), fix_w=64, rules=INOUT_RULE)
     freq = pydm_label(chan("MMS:01", ":fCurrentTriggerFrequency_RBV"), fix_w=84)
     mode = pydm_label(chan("MMS:01", ":eModeSelector_RBV"), fix_w=90, rules=MODE_RULE)
-    error = pydm_label("", rules=ALLERR_RULE)  # consolidated across all three stages
+    error = pydm_label("", rules=ALLERR_RULE, hignore=True)  # consolidated; never resizes the window
     # Home lives on each axis's centering button; a single Reset propagates to
     # every stage's reset PV (replaces the old Stop button).
     reset = reset_all_button()
