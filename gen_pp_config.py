@@ -92,10 +92,12 @@ CATALOG = {
 }
 ORDER = ["spindle", "x", "y"]
 
-# Centering: LED = <mms>:bCentered_RBV (real for spindle; assumed same for X/Y),
-# command = <mms>:bCenter (PLACEHOLDER -- confirm real centering-routine PV).
+# Home/centering: LED = <mms>:bCentered_RBV. The home command is per stage:
+# spindle sets its mode to Home (eModeSelector=5); X/Y pulse a home command.
 CENTER_LED = ":bCentered_RBV"
-CENTER_CMD = ":bCenter"
+CENTER = {"MMS:01": (":eModeSelector", "5"), "MMS:02": (":bHomeCmd", "1"), "MMS:03": (":bHomeCmd", "1")}
+def center_cmd(mms):
+    return CENTER.get(mms, (":bHomeCmd", "1"))
 
 _n = [0]
 def uid(base):
@@ -241,7 +243,8 @@ def param_grid(mms, params, cap_w=130, field_fix_w=0):
     # Center controls live in the same grid: caption | Center button | Center LED.
     r = len(params)
     cells.append(grid_item(label("Home", CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, cap_w), r, 0))
-    cells.append(grid_item(pydm_button("Home", chan(mms, CENTER_CMD), "1"), r, 1))
+    csuf, cval = center_cmd(mms)
+    cells.append(grid_item(pydm_button("Home", chan(mms, csuf), cval), r, 1))
     cells.append(grid_item(pydm_byte(chan(mms, CENTER_LED)), r, 2))
     return (f'<layout class="QGridLayout" name="{uid("grid")}">'
             f'<property name="horizontalSpacing"><number>6</number></property>'
@@ -251,9 +254,10 @@ def param_grid(mms, params, cap_w=130, field_fix_w=0):
 def center_row(mms):
     """A row styled like the param rows: 'Center' caption, a Center button that
     starts the centering routine, and a Center LED that lights when centered."""
+    csuf, cval = center_cmd(mms)
     return (f'<layout class="QHBoxLayout" name="{uid("centerrow")}">'
             f'{item(label("Center", CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, 130))}'
-            f'{item(pydm_button("Center", chan(mms, CENTER_CMD), "1", expanding=True))}'
+            f'{item(pydm_button("Center", chan(mms, csuf), cval, expanding=True))}'
             f'{item(pydm_byte(chan(mms, CENTER_LED)))}</layout>')
 
 def tab_content(key):
@@ -437,7 +441,7 @@ def model_D():
     # Space-optimized: three narrow columns, each with the vertical motor widget.
     cols = "".join(item(framed(compact_column(k), uid("vcol"), max_w=210)) for k in ORDER)
     body = item(f'<layout class="QHBoxLayout" name="vcolsRow"><property name="spacing"><number>6</number></property>{cols}</layout>')
-    return document(picker_bar() + body, 664, 600)
+    return document(picker_bar() + body, 664, 777)
 
 def hspacer():
     return ('<spacer name="'+uid("chs")+'"><property name="orientation"><enum>Qt::Horizontal</enum></property>'

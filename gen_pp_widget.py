@@ -14,7 +14,7 @@ writable fields. Run: python gen_pp_widget.py
 import json
 
 P = "ca://${prefix}"
-CONFIG = "pp_config3.ui"
+CONFIG = "pp_config.ui"
 
 def _xml(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
@@ -31,7 +31,8 @@ def mode_hl_rule(value):
              "notes": ""}]
     return _xml(json.dumps(rule))
 
-# Wheel-centre pill: show OPENED / CLOSED from the blade in/out status.
+# Wheel-centre pill: OPENED / CLOSED text from the blade in/out status; the
+# widget connects to ePickerStatus (see the pill's channel below).
 STATE_RULE = ("[{&quot;name&quot;: &quot;State&quot;, &quot;property&quot;: &quot;Text&quot;, &quot;initial_value&quot;: &quot;--&quot;, "
               "&quot;expression&quot;: &quot;'OPENED' if (ch[0]==2) else 'CLOSED' if (ch[0]==1) else '--'&quot;, "
               "&quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:03:eInOutStatus_RBV&quot;, "
@@ -163,7 +164,7 @@ def static_wheel():
              '<property name="styleSheet"><string notr="true">background: rgba(38,50,56,0.9); color: white; border-radius: 6px; font-weight: bold; font-size: 12pt;</string></property>'
              '<property name="alignment"><set>Qt::AlignCenter</set></property><property name="text"><string>--</string></property>'
              f'<property name="rules" stdset="0"><string>{STATE_RULE}</string></property>'
-             '<property name="channel" stdset="0"><string>ca://${prefix}:MMS:03:eInOutStatus_RBV</string></property></widget>')
+             '<property name="channel" stdset="0"><string>ca://${prefix}:MMS:01:ePickerStatus_RBV</string></property></widget>')
     return (f'<widget class="QFrame" name="StaticWheel">'
             f'<property name="sizePolicy"><sizepolicy hsizetype="Fixed" vsizetype="Fixed"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>'
             f'<property name="minimumSize"><size><width>200</width><height>196</height></size></property>'
