@@ -179,9 +179,8 @@ def reset_all_button(style=None):
             f'<property name="styleSheet"><string notr="true">{style or BLUE}</string></property>'
             f'<property name="text"><string>Reset</string></property>'
             f'<property name="showIcon" stdset="0"><bool>false</bool></property>'
-            f'<property name="commands" stdset="0"><stringlist>{cmds}</stringlist></property>'
-            f'<property name="showConfirmDialog" stdset="0"><bool>true</bool></property>'
-            f'<property name="confirmMessage" stdset="0"><string>Reset all three stages (MMS:01/02/03)?</string></property></widget>')
+            f'<property name="runCommandsInFullShell" stdset="0"><bool>true</bool></property>'
+            f'<property name="commands" stdset="0"><stringlist>{cmds}</stringlist></property></widget>')
 
 def motor_related_button(text, mms):
     # All motor buttons open the same pp_motor.ui (three MotorClassicRow); pass the
@@ -212,6 +211,11 @@ def vspacer():
             '<property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property></spacer>')
 
 def param_grid(mms, params, cap_w=130, field_fix_w=0):
+    # Writable controls (set/bypass) first, read-only (ro/byte) last. Stable, so
+    # it keeps relative order within each group. This pushes read-only rows down
+    # (e.g. spindle Freq) and lines up the writable rows -- C Off / EPS Bypass --
+    # at the same grid rows across the X and Y columns.
+    params = sorted(params, key=lambda p: p[1] not in ("set", "bypass"))
     cells = []
     for i, (cap, kind, rbv, setp) in enumerate(params):
         cells.append(grid_item(label(cap, CAP, "Qt::AlignRight|Qt::AlignVCenter", 30, cap_w), i, 0))
