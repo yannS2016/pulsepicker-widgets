@@ -92,12 +92,14 @@ CATALOG = {
 }
 ORDER = ["spindle", "x", "y"]
 
-# Home/centering: LED = <mms>:bCentered_RBV. The home command is per stage:
-# spindle sets its mode to Home (eModeSelector=5); X/Y pulse a home command.
+# Home/centering: LED = <mms>:bCentered_RBV. Home writes the tcmotor record's
+# home field (ioc-common-ads-ioc): <mms>.HOMF homes via the LOW limit
+# (eHomeMode=1), <mms>.HOMR via the HIGH limit (eHomeMode=2). Set HOME_FIELD to
+# whichever matches the picker's home switch.
 CENTER_LED = ":bCentered_RBV"
-CENTER = {"MMS:01": (":eModeSelector", "5"), "MMS:02": (":bHomeCmd", "1"), "MMS:03": (":bHomeCmd", "1")}
+HOME_FIELD = ".HOMF"   # ".HOMF" (low limit) or ".HOMR" (high limit)
 def center_cmd(mms):
-    return CENTER.get(mms, (":bHomeCmd", "1"))
+    return (HOME_FIELD, "1")
 
 _n = [0]
 def uid(base):
