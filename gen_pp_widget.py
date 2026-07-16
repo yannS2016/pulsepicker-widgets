@@ -31,12 +31,12 @@ def mode_hl_rule(value):
              "notes": ""}]
     return _xml(json.dumps(rule))
 
-# Wheel-centre pill: OPENED / CLOSED text from the blade in/out status; the
-# widget connects to ePickerStatus (see the pill's channel below).
+# Wheel-centre pill: OPENED / CLOSED / UNKNOWN from the picker status enum
+# (ePickerStatus_RBV). use_enum True -> ch[0] is the enum string; uppercase it.
 STATE_RULE = ("[{&quot;name&quot;: &quot;State&quot;, &quot;property&quot;: &quot;Text&quot;, &quot;initial_value&quot;: &quot;--&quot;, "
-              "&quot;expression&quot;: &quot;'OPENED' if (ch[0]==2) else 'CLOSED' if (ch[0]==1) else '--'&quot;, "
-              "&quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:03:eInOutStatus_RBV&quot;, "
-              "&quot;trigger&quot;: true, &quot;use_enum&quot;: false}], &quot;notes&quot;: &quot;&quot;}]")
+              "&quot;expression&quot;: &quot;str(ch[0]).upper() if ch[0] is not None else '--'&quot;, "
+              "&quot;channels&quot;: [{&quot;channel&quot;: &quot;ca://${prefix}:MMS:01:ePickerStatus_RBV&quot;, "
+              "&quot;trigger&quot;: true, &quot;use_enum&quot;: true}], &quot;notes&quot;: &quot;&quot;}]")
 
 GRAD = ("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2C3E50, stop:1 #34495E);"
         " color: white; border-radius: 8px; font-size: 20pt; font-weight: bold; padding: 8px;")
