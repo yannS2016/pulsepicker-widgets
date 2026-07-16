@@ -61,21 +61,25 @@ MODE = ("[{&quot;name&quot;: &quot;ModeString&quot;, &quot;property&quot;: &quot
         "&quot;ca://${prefix}:MMS:01:eModeSelector_RBV&quot;, &quot;trigger&quot;: true, &quot;use_enum&quot;: "
         "false}], &quot;notes&quot;: &quot;&quot;}]")
 
-# ModeFrame backdrop: red while a stage has a *real* error, but NOT the EPS
-# interlock. During picking the EPS trips (stEPSP:bEPS_OK_RBV == 0) and that is
-# expected, so it must not paint the widget red; a non-EPS error still does. So
-# X/Y count only when their bEPS_OK is true; spindle has no EPS. The config
-# screen still shows the message. ch = [b_spindle, b_x, epsok_x, b_y, epsok_y].
+# ModeFrame backdrop: red while a stage has a *real* error. The EPS interlock
+# (stEPSP:bEPS_OK_RBV == 0) is expected only while picking (Flip Flop=1 / Burst=2),
+# so ignore it ONLY then; outside picking an EPS trip is a real error and does go
+# red. Spindle has no EPS. A stage counts when it has an error AND (its EPS is ok
+# OR we're not picking). ch = [b_spindle, b_x, epsok_x, b_y, epsok_y, mode].
 # Deep red (#9B1111) is distinct from the CLOSE button's #E74C3C.
 ERROR_BG_RULE = _xml(json.dumps([{
     "name": "ErrorBg", "property": "Set Brush Color", "initial_value": "",
-    "expression": "QBrush(QColor(155, 17, 17)) if (ch[0] or (ch[1] and ch[2]) or (ch[3] and ch[4])) else QBrush(QColor(0, 0, 0, 0))",
+    "expression": ("QBrush(QColor(155, 17, 17)) if (ch[0] "
+                   "or (ch[1] and (ch[2] or ch[5] not in (1, 2))) "
+                   "or (ch[3] and (ch[4] or ch[5] not in (1, 2)))) "
+                   "else QBrush(QColor(0, 0, 0, 0))"),
     "channels": [
         {"channel": "ca://${prefix}:MMS:01:bError_RBV", "trigger": True, "use_enum": False},
         {"channel": "ca://${prefix}:MMS:02:bError_RBV", "trigger": True, "use_enum": False},
         {"channel": "ca://${prefix}:MMS:02:stEPSP:bEPS_OK_RBV", "trigger": True, "use_enum": False},
         {"channel": "ca://${prefix}:MMS:03:bError_RBV", "trigger": True, "use_enum": False},
         {"channel": "ca://${prefix}:MMS:03:stEPSP:bEPS_OK_RBV", "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:01:eModeSelector_RBV", "trigger": True, "use_enum": False},
     ],
     "notes": "",
 }]))
