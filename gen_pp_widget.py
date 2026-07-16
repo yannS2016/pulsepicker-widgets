@@ -22,7 +22,7 @@ def _xml(s):
 def mode_hl_rule(value):
     """Rule: the selected mode button (mode readback == its press value) stays at
     full opacity while the others dim -- highlighting the active mode."""
-    rule = [{"name": "ModeHL", "property": "Opacity", "initial_value": 1.0,
+    rule = [{"name": "ModeHL", "property": "Opacity", "initial_value": "1.0",
              "expression": "1.0 if ch[0]==" + str(value) + " else 0.45",
              "channels": [{"channel": "ca://${prefix}:MMS:01:eModeSelector_RBV", "trigger": True}],
              "notes": ""}]
@@ -55,6 +55,19 @@ MODE = ("[{&quot;name&quot;: &quot;ModeString&quot;, &quot;property&quot;: &quot
         "(ch[0]==4) else 'Home' if (ch[0]==5) else 'Unknown'&quot;, &quot;channels&quot;: [{&quot;channel&quot;: "
         "&quot;ca://${prefix}:MMS:01:eModeSelector_RBV&quot;, &quot;trigger&quot;: true, &quot;use_enum&quot;: "
         "false}], &quot;notes&quot;: &quot;&quot;}]")
+
+# ModeFrame backdrop: red brush while ANY stage's bError_RBV is set, else transparent.
+ERROR_BG_RULE = _xml(json.dumps([{
+    "name": "ErrorBg", "property": "Set Brush Color", "initial_value": "",
+    # deep red, distinct from the CLOSE button's #E74C3C so CLOSE stays legible
+    "expression": "QBrush(QColor(155, 17, 17)) if any(ch) else QBrush(QColor(0, 0, 0, 0))",
+    "channels": [
+        {"channel": "ca://${prefix}:MMS:01:bError_RBV", "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:02:bError_RBV", "trigger": True, "use_enum": False},
+        {"channel": "ca://${prefix}:MMS:03:bError_RBV", "trigger": True, "use_enum": False},
+    ],
+    "notes": "",
+}]))
 
 _n = [0]
 def uid(b):
@@ -163,12 +176,32 @@ def framed(name, headertxt, inner_items):
             f'<property name="rightMargin"><number>8</number></property><property name="bottomMargin"><number>8</number></property>'
             f'{item(header(headertxt))}{inner_items}</layout></widget>')
 
+def mode_framed(name, headertxt, inner_items):
+    """Like framed(), but with a rule-colored backdrop rectangle behind transparent
+    content, so the frame turns red whenever any stage reports an error."""
+    bg = ('<widget class="PyDMDrawingRectangle" name="'+uid("ModeErrorBg")+'">'
+          '<property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Expanding"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>'
+          '<property name="penStyle" stdset="0"><enum>Qt::NoPen</enum></property>'
+          '<property name="brush" stdset="0"><brush brushstyle="SolidPattern"><color alpha="0"><red>0</red><green>0</green><blue>0</blue></color></brush></property>'
+          f'<property name="rules" stdset="0"><string>{ERROR_BG_RULE}</string></property></widget>')
+    content = (f'<widget class="QWidget" name="{uid("ModeContent")}"><property name="styleSheet"><string notr="true">background: transparent;</string></property>'
+               f'<layout class="QVBoxLayout" name="{uid("mcv")}"><property name="spacing"><number>7</number></property>'
+               f'<property name="leftMargin"><number>8</number></property><property name="topMargin"><number>8</number></property>'
+               f'<property name="rightMargin"><number>8</number></property><property name="bottomMargin"><number>8</number></property>'
+               f'{item(header(headertxt))}{inner_items}</layout></widget>')
+    return (f'<widget class="QFrame" name="{name}"><property name="styleSheet"><string notr="true">QFrame#{name} {{ border: 1px solid #A0A0A0; border-radius: 5px; }}</string></property>'
+            f'<property name="frameShape"><enum>QFrame::StyledPanel</enum></property>'
+            f'<layout class="QGridLayout" name="{uid("mg")}"><property name="leftMargin"><number>0</number></property><property name="topMargin"><number>0</number></property>'
+            f'<property name="rightMargin"><number>0</number></property><property name="bottomMargin"><number>0</number></property>'
+            f'{gitem(bg,0,0)}{gitem(content,0,0)}</layout></widget>')
+
 CUSTOM_STATIC = """
  <customwidgets>
   <customwidget><class>PyDMLabel</class><extends>QLabel</extends><header>pydm.widgets.label</header></customwidget>
   <customwidget><class>PyDMLineEdit</class><extends>QLineEdit</extends><header>pydm.widgets.line_edit</header></customwidget>
   <customwidget><class>PyDMPushButton</class><extends>QPushButton</extends><header>pydm.widgets.pushbutton</header></customwidget>
   <customwidget><class>PyDMRelatedDisplayButton</class><extends>QPushButton</extends><header>pydm.widgets.related_display_button</header></customwidget>
+  <customwidget><class>PyDMDrawingRectangle</class><extends>QWidget</extends><header>pydm.widgets.drawing</header></customwidget>
  </customwidgets>
 """
 CUSTOM_ANIM = CUSTOM_STATIC.replace(" </customwidgets>",
@@ -193,7 +226,7 @@ def build(wheel, custom, layout="modern"):
         # Just the mode block: OPEN/CLOSE on top, wheel (shows OPENED/CLOSED), FLIP
         # FLOP/BURST below. Status + HOME/STOP live on the config screen now.
         inner = item(hbox(o, c)) + item(hbox(hspacer(), wheel, hspacer())) + item(hbox(ff, bu))
-        mode = framed("ModeFrame", "Mode", inner)
+        mode = mode_framed("ModeFrame", "Mode", inner)
         body_items = item(title) + item(mode) + item(vspacer()) + item(footer)
     elif layout == "surround":
         # OPEN/CLOSE on top, HOME | wheel | STOP, FLIP FLOP/BURST below.
@@ -201,7 +234,7 @@ def build(wheel, custom, layout="modern"):
         ho = mode_btn("HOME", "5", BLUE, True, expand=False); st = mode_btn("STOP", "0", STOP_COLOR, False, expand=False)
         status = framed("StatusFrame", "Current Status", item(rb_vbox) + item(err))
         inner = item(hbox(o, c)) + item(hbox(ho, wheel, st)) + item(hbox(ff, bu))
-        mode = framed("ModeFrame", "Mode", inner)
+        mode = mode_framed("ModeFrame", "Mode", inner)
         body_items = item(title) + item(status) + item(mode) + item(footer)
     else:
         # modern: wheel in status, 2x3 mode grid
@@ -211,7 +244,7 @@ def build(wheel, custom, layout="modern"):
         grid = (f'<layout class="QGridLayout" name="modeGrid"><property name="horizontalSpacing"><number>8</number></property>'
                 f'<property name="verticalSpacing"><number>8</number></property>'
                 f'{gitem(o,0,0)}{gitem(c,0,1)}{gitem(ff,1,0)}{gitem(bu,1,1)}{gitem(ho,2,0)}{gitem(st,2,1)}</layout>')
-        mode = framed("ModeFrame", "Mode Control", item(grid))
+        mode = mode_framed("ModeFrame", "Mode Control", item(grid))
         body_items = item(title) + item(status) + item(mode) + item(footer)
 
     return (f'<?xml version="1.0" encoding="UTF-8"?>\n<ui version="4.0">\n <class>Form</class>\n'
