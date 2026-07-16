@@ -242,6 +242,9 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>6</width>
@@ -264,20 +267,26 @@
           <property name="text">
            <string>Reset</string>
           </property>
-          <property name="showConfirmDialog">
+          <property name="runCommandsInFullShell">
            <bool>true</bool>
-          </property>
-          <property name="confirmMessage">
-           <string>Reset all three stages (MMS:01/02/03)?</string>
           </property>
           <property name="showIcon">
            <bool>false</bool>
+          </property>
+          <property name="titles">
+           <stringlist>
+            <string>Spindle</string>
+            <string>X</string>
+            <string>Y</string>
+            <string>All</string>
+           </stringlist>
           </property>
           <property name="commands">
            <stringlist>
             <string>caput ${prefix}:MMS:01:bReset 1</string>
             <string>caput ${prefix}:MMS:02:bReset 1</string>
             <string>caput ${prefix}:MMS:03:bReset 1</string>
+            <string>caput ${prefix}:MMS:01:bReset 1; caput ${prefix}:MMS:02:bReset 1; caput ${prefix}:MMS:03:bReset 1</string>
            </stringlist>
           </property>
          </widget>
@@ -412,7 +421,7 @@
              <string notr="true">color: #333; font-weight: bold;</string>
             </property>
             <property name="text">
-             <string>Freq</string>
+             <string>Center</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -443,59 +452,6 @@
              <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
             </property>
             <property name="text">
-             <string>ca://${prefix}:MMS:01:fCurrentTriggerFrequency_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:01:fCurrentTriggerFrequency_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="lbl_4">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>Center</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="PyDMLabel" name="rb_5">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
              <string>ca://${prefix}:MMS:01:fCenter_RBV</string>
             </property>
             <property name="alignment">
@@ -506,8 +462,8 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="PyDMLineEdit" name="set_6">
+          <item row="0" column="2">
+           <widget class="PyDMLineEdit" name="set_4">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -537,8 +493,8 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="lbl_7">
+          <item row="1" column="0">
+           <widget class="QLabel" name="lbl_5">
             <property name="minimumSize">
              <size>
               <width>58</width>
@@ -556,8 +512,8 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="PyDMLabel" name="rb_8">
+          <item row="1" column="1">
+           <widget class="PyDMLabel" name="rb_6">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -590,8 +546,8 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
-           <widget class="PyDMLineEdit" name="set_9">
+          <item row="1" column="2">
+           <widget class="PyDMLineEdit" name="set_7">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -621,8 +577,8 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="lbl_10">
+          <item row="2" column="0">
+           <widget class="QLabel" name="lbl_8">
             <property name="minimumSize">
              <size>
               <width>58</width>
@@ -640,8 +596,8 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="PyDMLabel" name="rb_11">
+          <item row="2" column="1">
+           <widget class="PyDMLabel" name="rb_9">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -674,8 +630,8 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="PyDMLineEdit" name="set_12">
+          <item row="2" column="2">
+           <widget class="PyDMLineEdit" name="set_10">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -705,8 +661,8 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="lbl_13">
+          <item row="3" column="0">
+           <widget class="QLabel" name="lbl_11">
             <property name="minimumSize">
              <size>
               <width>58</width>
@@ -724,8 +680,8 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="PyDMLabel" name="rb_14">
+          <item row="3" column="1">
+           <widget class="PyDMLabel" name="rb_12">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -758,8 +714,8 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
-           <widget class="PyDMLineEdit" name="set_15">
+          <item row="3" column="2">
+           <widget class="PyDMLineEdit" name="set_13">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -789,8 +745,8 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="lbl_16">
+          <item row="4" column="0">
+           <widget class="QLabel" name="lbl_14">
             <property name="minimumSize">
              <size>
               <width>58</width>
@@ -808,8 +764,8 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="PyDMLabel" name="rb_17">
+          <item row="4" column="1">
+           <widget class="PyDMLabel" name="rb_15">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -842,8 +798,8 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="2">
-           <widget class="PyDMLineEdit" name="set_18">
+          <item row="4" column="2">
+           <widget class="PyDMLineEdit" name="set_16">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -873,8 +829,8 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="lbl_19">
+          <item row="5" column="0">
+           <widget class="QLabel" name="lbl_17">
             <property name="minimumSize">
              <size>
               <width>58</width>
@@ -892,8 +848,8 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
-           <widget class="PyDMLabel" name="rb_20">
+          <item row="5" column="1">
+           <widget class="PyDMLabel" name="rb_18">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -926,8 +882,8 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="2">
-           <widget class="PyDMLineEdit" name="set_21">
+          <item row="5" column="2">
+           <widget class="PyDMLineEdit" name="set_19">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -954,6 +910,59 @@
             </property>
             <property name="channel">
              <string>ca://${prefix}:MMS:01:fLimitNeg</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="lbl_20">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>Freq</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="PyDMLabel" name="rb_21">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:01:fCurrentTriggerFrequency_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:01:fCurrentTriggerFrequency_RBV</string>
             </property>
            </widget>
           </item>
@@ -1097,7 +1106,7 @@
              <string>Home</string>
             </property>
             <property name="channel">
-             <string>ca://${prefix}:MMS:01:bCenter</string>
+             <string>ca://${prefix}:MMS:01:eModeSelector</string>
             </property>
             <property name="showConfirmDialog">
              <bool>true</bool>
@@ -1106,7 +1115,7 @@
              <string>Proceed with Home?</string>
             </property>
             <property name="pressValue">
-             <string>1</string>
+             <string>5</string>
             </property>
            </widget>
           </item>
@@ -1295,7 +1304,7 @@
              <string notr="true">color: #333; font-weight: bold;</string>
             </property>
             <property name="text">
-             <string>T Min</string>
+             <string>C Off</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1326,218 +1335,6 @@
              <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
             </property>
             <property name="text">
-             <string>ca://${prefix}:MMS:02:fXLimMin_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:02:fXLimMin_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="lbl_40">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>T Max</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="PyDMLabel" name="rb_41">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
-             <string>ca://${prefix}:MMS:02:fXLimMax_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:02:fXLimMax_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="lbl_42">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>C Min</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="PyDMLabel" name="rb_43">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
-             <string>ca://${prefix}:MMS:02:fXCenterLimMin_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:02:fXCenterLimMin_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="lbl_44">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>C Max</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="PyDMLabel" name="rb_45">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
-             <string>ca://${prefix}:MMS:02:fXCenterLimMax_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:02:fXCenterLimMax_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="lbl_46">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>C Off</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="PyDMLabel" name="rb_47">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
              <string>ca://${prefix}:MMS:02:fXCenterOffset_RBV</string>
             </property>
             <property name="alignment">
@@ -1548,8 +1345,8 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
-           <widget class="PyDMLineEdit" name="set_48">
+          <item row="0" column="2">
+           <widget class="PyDMLineEdit" name="set_40">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -1579,8 +1376,8 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="lbl_49">
+          <item row="1" column="0">
+           <widget class="QLabel" name="lbl_41">
             <property name="minimumSize">
              <size>
               <width>58</width>
@@ -1598,8 +1395,8 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="PyDMLabel" name="rb_50">
+          <item row="1" column="1">
+           <widget class="PyDMLabel" name="rb_42">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -1632,8 +1429,8 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="2">
-           <widget class="PyDMEnumComboBox" name="cmb_51">
+          <item row="1" column="2">
+           <widget class="PyDMEnumComboBox" name="cmb_43">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -1657,6 +1454,218 @@
             </property>
             <property name="channel">
              <string>ca://${prefix}:MMS:02:bXEpsBypass</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="lbl_44">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>T Min</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="PyDMLabel" name="rb_45">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:02:fXLimMin_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:02:fXLimMin_RBV</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="lbl_46">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>T Max</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="PyDMLabel" name="rb_47">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:02:fXLimMax_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:02:fXLimMax_RBV</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="lbl_48">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>C Min</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="PyDMLabel" name="rb_49">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:02:fXCenterLimMin_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:02:fXCenterLimMin_RBV</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="lbl_50">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>C Max</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="PyDMLabel" name="rb_51">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:02:fXCenterLimMax_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:02:fXCenterLimMax_RBV</string>
             </property>
            </widget>
           </item>
@@ -1694,7 +1703,7 @@
              <string>Home</string>
             </property>
             <property name="channel">
-             <string>ca://${prefix}:MMS:02:bCenter</string>
+             <string>ca://${prefix}:MMS:02:bHomeCmd</string>
             </property>
             <property name="showConfirmDialog">
              <bool>true</bool>
@@ -1829,7 +1838,7 @@
              <string notr="true">color: #333; font-weight: bold;</string>
             </property>
             <property name="text">
-             <string>T Min</string>
+             <string>C Off</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1860,165 +1869,6 @@
              <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
             </property>
             <property name="text">
-             <string>ca://${prefix}:MMS:03:fYLimMin_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:03:fYLimMin_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="lbl_63">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>T Max</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="PyDMLabel" name="rb_64">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
-             <string>ca://${prefix}:MMS:03:fYLimMax_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:03:fYLimMax_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="lbl_65">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>T Mid</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="PyDMLabel" name="rb_66">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
-             <string>ca://${prefix}:MMS:03:fYLimMedium_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:03:fYLimMedium_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="lbl_67">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>C Off</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="PyDMLabel" name="rb_68">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
              <string>ca://${prefix}:MMS:03:fYCenterOffset_RBV</string>
             </property>
             <property name="alignment">
@@ -2029,8 +1879,8 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="PyDMLineEdit" name="set_69">
+          <item row="0" column="2">
+           <widget class="PyDMLineEdit" name="set_63">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -2060,61 +1910,8 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="lbl_70">
-            <property name="minimumSize">
-             <size>
-              <width>58</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #333; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>Thresh</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="PyDMLabel" name="rb_71">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>62</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>62</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
-            </property>
-            <property name="text">
-             <string>ca://${prefix}:MMS:03:fInOutThrsh_RBV</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="channel">
-             <string>ca://${prefix}:MMS:03:fInOutThrsh_RBV</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="lbl_72">
+          <item row="1" column="0">
+           <widget class="QLabel" name="lbl_64">
             <property name="minimumSize">
              <size>
               <width>58</width>
@@ -2132,8 +1929,8 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="PyDMLabel" name="rb_73">
+          <item row="1" column="1">
+           <widget class="PyDMLabel" name="rb_65">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -2166,8 +1963,8 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="2">
-           <widget class="PyDMEnumComboBox" name="cmb_74">
+          <item row="1" column="2">
+           <widget class="PyDMEnumComboBox" name="cmb_66">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -2191,6 +1988,218 @@
             </property>
             <property name="channel">
              <string>ca://${prefix}:MMS:03:bYEpsBypass</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="lbl_67">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>T Min</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="PyDMLabel" name="rb_68">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:03:fYLimMin_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:03:fYLimMin_RBV</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="lbl_69">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>T Max</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="PyDMLabel" name="rb_70">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:03:fYLimMax_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:03:fYLimMax_RBV</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="lbl_71">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>T Mid</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="PyDMLabel" name="rb_72">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:03:fYLimMedium_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:03:fYLimMedium_RBV</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="lbl_73">
+            <property name="minimumSize">
+             <size>
+              <width>58</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #333; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>Thresh</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="PyDMLabel" name="rb_74">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>62</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>62</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #e4e7ea; color: #4a5259; border: 1px solid #b6bcc2; border-radius: 3px;</string>
+            </property>
+            <property name="text">
+             <string>ca://${prefix}:MMS:03:fInOutThrsh_RBV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="channel">
+             <string>ca://${prefix}:MMS:03:fInOutThrsh_RBV</string>
             </property>
            </widget>
           </item>
@@ -2228,7 +2237,7 @@
              <string>Home</string>
             </property>
             <property name="channel">
-             <string>ca://${prefix}:MMS:03:bCenter</string>
+             <string>ca://${prefix}:MMS:03:bHomeCmd</string>
             </property>
             <property name="showConfirmDialog">
              <bool>true</bool>
