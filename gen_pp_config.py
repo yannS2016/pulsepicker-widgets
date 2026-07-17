@@ -60,7 +60,7 @@ ALLERR_RULE = rule_xml([{
 # kind: ro | set | byte | bypass.  Suffixes are appended AFTER ":<mms>".
 CATALOG = {
     "spindle": ("Spindle", "MMS:01", [
-        ("Frequency", "ro", ":fCurrentTriggerFrequency_RBV", None),
+        # Frequency lives in the status bar above, so it is not repeated here.
         ("Center", "set", ":fCenter_RBV", ":fCenter"),
         ("Center Offset", "set", ":fCenterOffset_RBV", ":fCenterOffset"),
         ("+ Close", "set", ":fStopPos_RBV", ":fStopPos"),
