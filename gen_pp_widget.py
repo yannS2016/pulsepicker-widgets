@@ -150,9 +150,11 @@ def mode_btn(text, value, color, confirm, expand=True, highlight=True):
             f'<property name="releaseValue" stdset="0"><string>None</string></property></widget>')
 
 def _slit_vis(name, match):
-    """Visible rule: show this element only when ePickerStatus == match."""
+    """Visible rule: show this element only when ePickerStatus starts with
+    `match` (startswith, so 'OPEN' catches both OPEN and OPENED, 'CLOS' catches
+    CLOSE and CLOSED)."""
     rule = [{"name": name, "property": "Visible", "initial_value": "",
-             "expression": "str(ch[0]).upper() == '" + match + "'",
+             "expression": "str(ch[0]).upper().startswith('" + match + "')",
              "channels": [{"channel": "ca://${prefix}:MMS:01:ePickerStatus_RBV",
                            "trigger": True, "use_enum": True}],
              "notes": ""}]
@@ -169,6 +171,23 @@ def _slit(name, x, y, w, h, rgb, vis_rule):
             f'<red>{r}</red><green>{g}</green><blue>{b}</blue></color></brush></property>'
             f'<property name="rules" stdset="0"><string>{vis_rule}</string></property></widget>')
 
+def _slit_line(name, x, y, w, h, rgb, angle, vis_rule, width=12):
+    """An angled slit blade as a PyDMDrawingLine, hidden until its Visible rule
+    fires. A line keeps full length and thickness when rotated; a rotated
+    PyDMDrawingRectangle instead shrinks to its inscribed rect. `angle` is
+    degrees counter-clockwise from horizontal. The line is drawn through the
+    widget-box centre, so parallel blades come from offsetting the boxes."""
+    r, g, b = rgb
+    return (f'<widget class="PyDMDrawingLine" name="{name}">'
+            f'<property name="geometry"><rect><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height></rect></property>'
+            f'<property name="visible"><bool>false</bool></property>'
+            f'<property name="penStyle" stdset="0"><enum>Qt::SolidLine</enum></property>'
+            f'<property name="penColor" stdset="0"><color alpha="255"><red>{r}</red><green>{g}</green><blue>{b}</blue></color></property>'
+            f'<property name="penWidth" stdset="0"><double>{width}</double></property>'
+            f'<property name="penCapStyle" stdset="0"><enum>Qt::RoundCap</enum></property>'
+            f'<property name="rotation" stdset="0"><double>{angle}</double></property>'
+            f'<property name="rules" stdset="0"><string>{vis_rule}</string></property></widget>')
+
 def static_wheel():
     # Fixed 200x196 frame so the absolute ring/slit never stretch out of alignment.
     # Ring centered at (100, 98). The slit orientation shows the picker status:
@@ -177,10 +196,11 @@ def static_wheel():
             '<property name="styleSheet"><string notr="true">background: transparent; border: 15px solid #546e7a; border-radius: 88px;</string></property>'
             '<property name="text"><string/></property></widget>')
     OPEN, SHUT = (0, 200, 83), (127, 140, 141)
-    vis_open, vis_shut = _slit_vis("SlitOpenVis", "OPENED"), _slit_vis("SlitShutVis", "CLOSED")
-    # OPENED: two horizontal bars (slit along the beam)
-    ob1 = _slit("SlitOpen1", 30, 80, 140, 12, OPEN, vis_open)
-    ob2 = _slit("SlitOpen2", 30, 104, 140, 12, OPEN, vis_open)
+    vis_open, vis_shut = _slit_vis("SlitOpenVis", "OPEN"), _slit_vis("SlitShutVis", "CLOS")
+    # OPEN: two parallel blades angled at 45 deg (the picker slit). Boxes are
+    # offset perpendicular to the blade so the two lines read as a slit.
+    ob1 = _slit_line("SlitOpen1", 48, 46, 74, 74, OPEN, 45, vis_open)
+    ob2 = _slit_line("SlitOpen2", 77, 75, 74, 74, OPEN, 45, vis_open)
     # CLOSED: two vertical bars (slit across the beam)
     cb1 = _slit("SlitShut1", 82, 28, 12, 140, SHUT, vis_shut)
     cb2 = _slit("SlitShut2", 106, 28, 12, 140, SHUT, vis_shut)
@@ -247,6 +267,7 @@ CUSTOM_STATIC = """
   <customwidget><class>PyDMPushButton</class><extends>QPushButton</extends><header>pydm.widgets.pushbutton</header></customwidget>
   <customwidget><class>PyDMRelatedDisplayButton</class><extends>QPushButton</extends><header>pydm.widgets.related_display_button</header></customwidget>
   <customwidget><class>PyDMDrawingRectangle</class><extends>QWidget</extends><header>pydm.widgets.drawing</header></customwidget>
+  <customwidget><class>PyDMDrawingLine</class><extends>QWidget</extends><header>pydm.widgets.drawing</header></customwidget>
  </customwidgets>
 """
 CUSTOM_ANIM = CUSTOM_STATIC.replace(" </customwidgets>",
