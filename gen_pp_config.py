@@ -92,14 +92,13 @@ CATALOG = {
 }
 ORDER = ["spindle", "x", "y"]
 
-# Home/centering: LED = <mms>:bCentered_RBV. Home writes the tcmotor record's
-# home field (ioc-common-ads-ioc): <mms>.HOMF homes via the LOW limit
-# (eHomeMode=1), <mms>.HOMR via the HIGH limit (eHomeMode=2). Set HOME_FIELD to
-# whichever matches the picker's home switch.
+# Home: LED = <mms>:bCentered_RBV. The spindle sets its mode to Home
+# (eModeSelector=5); the X/Y linear stages home via the tcmotor high-limit field
+# (<mms>.HOMR, eHomeMode=2) from ioc-common-ads-ioc.
 CENTER_LED = ":bCentered_RBV"
-HOME_FIELD = ".HOMF"   # ".HOMF" (low limit) or ".HOMR" (high limit)
+CENTER = {"MMS:01": (":eModeSelector", "5"), "MMS:02": (".HOMR", "1"), "MMS:03": (".HOMR", "1")}
 def center_cmd(mms):
-    return (HOME_FIELD, "1")
+    return CENTER.get(mms, (".HOMR", "1"))
 
 _n = [0]
 def uid(base):
@@ -436,7 +435,7 @@ def picker_bar():
     inner = (f'<layout class="QVBoxLayout" name="{uid("pbv")}"><property name="spacing"><number>6</number></property>'
              f'<property name="leftMargin"><number>8</number></property><property name="topMargin"><number>6</number></property>'
              f'<property name="rightMargin"><number>8</number></property><property name="bottomMargin"><number>8</number></property>'
-             f'{item(label("Pulse Picker Status", SLATE))}{item(row)}{item(erow)}</layout>')
+             f'{item(label("Status", SLATE))}{item(row)}{item(erow)}</layout>')
     return item(framed(inner, uid("pbar")))
 
 def model_D():
