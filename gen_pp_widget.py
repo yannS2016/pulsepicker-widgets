@@ -197,13 +197,13 @@ def static_wheel():
             '<property name="text"><string/></property></widget>')
     OPEN, SHUT = (0, 200, 83), (127, 140, 141)
     vis_open, vis_shut = _slit_vis("SlitOpenVis", "OPEN"), _slit_vis("SlitShutVis", "CLOS")
-    # OPEN: two parallel blades angled at 45 deg (the picker slit). Boxes are
-    # offset perpendicular to the blade so the two lines read as a slit.
-    ob1 = _slit_line("SlitOpen1", 48, 46, 74, 74, OPEN, 45, vis_open)
-    ob2 = _slit_line("SlitOpen2", 77, 75, 74, 74, OPEN, 45, vis_open)
-    # CLOSED: two vertical bars (slit across the beam)
-    cb1 = _slit("SlitShut1", 82, 28, 12, 140, SHUT, vis_shut)
-    cb2 = _slit("SlitShut2", 106, 28, 12, 140, SHUT, vis_shut)
+    # OPEN: two horizontal bars, parallel to the beam (slit wide open, 0 deg).
+    ob1 = _slit("SlitOpen1", 30, 80, 140, 12, OPEN, vis_open)
+    ob2 = _slit("SlitOpen2", 30, 104, 140, 12, OPEN, vis_open)
+    # CLOSED: two parallel blades angled at 45 deg (blades swung across). Boxes
+    # are offset perpendicular to the blade so the two lines read as a slit.
+    cb1 = _slit_line("SlitShut1", 48, 46, 74, 74, SHUT, 45, vis_shut)
+    cb2 = _slit_line("SlitShut2", 77, 75, 74, 74, SHUT, 45, vis_shut)
     # Centre pill: OPENED / CLOSED / UNKNOWN text (also covers the UNKNOWN case,
     # where the slit disappears). Kept small so the slit bars stay visible.
     state = ('<widget class="PyDMLabel" name="PickerState"><property name="geometry"><rect><x>58</x><y>84</y><width>84</width><height>28</height></rect></property>'
