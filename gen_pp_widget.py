@@ -149,26 +149,53 @@ def mode_btn(text, value, color, confirm, expand=True, highlight=True):
             f'<property name="pressValue" stdset="0"><string>{value}</string></property>{cd}'
             f'<property name="releaseValue" stdset="0"><string>None</string></property></widget>')
 
+def _slit_vis(name, match):
+    """Visible rule: show this element only when ePickerStatus == match."""
+    rule = [{"name": name, "property": "Visible", "initial_value": "",
+             "expression": "str(ch[0]).upper() == '" + match + "'",
+             "channels": [{"channel": "ca://${prefix}:MMS:01:ePickerStatus_RBV",
+                           "trigger": True, "use_enum": True}],
+             "notes": ""}]
+    return _xml(json.dumps(rule))
+
+def _slit(name, x, y, w, h, rgb, vis_rule):
+    """A slit bar as a PyDMDrawingRectangle, hidden until its Visible rule fires."""
+    r, g, b = rgb
+    return (f'<widget class="PyDMDrawingRectangle" name="{name}">'
+            f'<property name="geometry"><rect><x>{x}</x><y>{y}</y><width>{w}</width><height>{h}</height></rect></property>'
+            f'<property name="visible"><bool>false</bool></property>'
+            f'<property name="penStyle" stdset="0"><enum>Qt::NoPen</enum></property>'
+            f'<property name="brush" stdset="0"><brush brushstyle="SolidPattern"><color alpha="255">'
+            f'<red>{r}</red><green>{g}</green><blue>{b}</blue></color></brush></property>'
+            f'<property name="rules" stdset="0"><string>{vis_rule}</string></property></widget>')
+
 def static_wheel():
-    # Fixed 200x196 frame so the absolute ring/bars never stretch out of alignment.
-    # Ring centered at (100, 98); the two slit bars are symmetric about y=98.
+    # Fixed 200x196 frame so the absolute ring/slit never stretch out of alignment.
+    # Ring centered at (100, 98). The slit orientation shows the picker status:
+    #   OPENED -> horizontal green bars, CLOSED -> vertical grey bars, UNKNOWN -> none.
     ring = ('<widget class="QLabel" name="StaticRing"><property name="geometry"><rect><x>12</x><y>10</y><width>176</width><height>176</height></rect></property>'
             '<property name="styleSheet"><string notr="true">background: transparent; border: 15px solid #546e7a; border-radius: 88px;</string></property>'
             '<property name="text"><string/></property></widget>')
-    bar1 = ('<widget class="QLabel" name="StaticBar1"><property name="geometry"><rect><x>40</x><y>77</y><width>120</width><height>18</height></rect></property>'
-            '<property name="styleSheet"><string notr="true">background: #00c853; border-radius: 4px;</string></property><property name="text"><string/></property></widget>')
-    bar2 = ('<widget class="QLabel" name="StaticBar2"><property name="geometry"><rect><x>40</x><y>101</y><width>120</width><height>18</height></rect></property>'
-            '<property name="styleSheet"><string notr="true">background: #00c853; border-radius: 4px;</string></property><property name="text"><string/></property></widget>')
-    # Centre pill: OPENED / CLOSED from the blade in/out status.
-    state = ('<widget class="PyDMLabel" name="PickerState"><property name="geometry"><rect><x>42</x><y>82</y><width>116</width><height>32</height></rect></property>'
-             '<property name="styleSheet"><string notr="true">background: rgba(38,50,56,0.9); color: white; border-radius: 6px; font-weight: bold; font-size: 12pt;</string></property>'
+    OPEN, SHUT = (0, 200, 83), (127, 140, 141)
+    vis_open, vis_shut = _slit_vis("SlitOpenVis", "OPENED"), _slit_vis("SlitShutVis", "CLOSED")
+    # OPENED: two horizontal bars (slit along the beam)
+    ob1 = _slit("SlitOpen1", 30, 80, 140, 12, OPEN, vis_open)
+    ob2 = _slit("SlitOpen2", 30, 104, 140, 12, OPEN, vis_open)
+    # CLOSED: two vertical bars (slit across the beam)
+    cb1 = _slit("SlitShut1", 82, 28, 12, 140, SHUT, vis_shut)
+    cb2 = _slit("SlitShut2", 106, 28, 12, 140, SHUT, vis_shut)
+    # Centre pill: OPENED / CLOSED / UNKNOWN text (also covers the UNKNOWN case,
+    # where the slit disappears). Kept small so the slit bars stay visible.
+    state = ('<widget class="PyDMLabel" name="PickerState"><property name="geometry"><rect><x>58</x><y>84</y><width>84</width><height>28</height></rect></property>'
+             '<property name="styleSheet"><string notr="true">background: rgba(38,50,56,0.92); color: white; border-radius: 6px; font-weight: bold; font-size: 10pt;</string></property>'
              '<property name="alignment"><set>Qt::AlignCenter</set></property><property name="text"><string>--</string></property>'
              f'<property name="rules" stdset="0"><string>{STATE_RULE}</string></property>'
              '<property name="channel" stdset="0"><string>ca://${prefix}:MMS:01:ePickerStatus_RBV</string></property></widget>')
     return (f'<widget class="QFrame" name="StaticWheel">'
             f'<property name="sizePolicy"><sizepolicy hsizetype="Fixed" vsizetype="Fixed"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>'
             f'<property name="minimumSize"><size><width>200</width><height>196</height></size></property>'
-            f'<property name="maximumSize"><size><width>200</width><height>196</height></size></property>{ring}{bar1}{bar2}{state}</widget>')
+            f'<property name="maximumSize"><size><width>200</width><height>196</height></size></property>'
+            f'{ring}{ob1}{ob2}{cb1}{cb2}{state}</widget>')
 
 def pulse_picker():
     return ('<widget class="PulsePicker" name="PulsePicker"><property name="minimumSize"><size><width>150</width><height>145</height></size></property>'
